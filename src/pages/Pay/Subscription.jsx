@@ -48,7 +48,7 @@ export default function Subscription() {
     reference: (new Date()).getTime().toString(),
     email: user ? user.email : "coongames8@gmail.com",
     amount: (data && data.price * 100) || (subscription.price * 100),
-    publicKey: 'pk_live_71bf88a41666c28d7e035b7086eddedda3ba8c47',
+    publicKey: 'pk_live_89946a1c460d9c43482268f4991f86de27408c64',
     currency: "KES",
     metadata: {
       name: user ? user.email : "coongames8@gmail.com",
