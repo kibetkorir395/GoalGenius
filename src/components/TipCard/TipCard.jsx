@@ -58,7 +58,7 @@ export default function TipCard({ tip, isAdmin, today }) {
                     padding: '3px',
                 }}>odd: {tip.odd}</p>
                 {isAdmin && <NavLink to={"/edit-tip"} state={tip}><BiEdit /></NavLink>}
-                {<div className="tag" style={{ backgroundColor: tip.premium ? "gold" : "white" }}>{tip.premium ? "💎" : "🔓"}</div>}
+                {<div className="tag" style={{ backgroundColor: tip.premium ? "gold" : "white" }}>{tip.premium ? "💎 VIP" : "🔓 FREE"}</div>}
             </div>
 
             <div className="center">
