@@ -1,53 +1,122 @@
-.list-users{
+.list-users {
     width: 100%;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    padding: 10px 5px;
-    gap: 5px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
+
+    .list-users-header {
+        margin-bottom: 20px;
+    }
+
+    .stats-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--text-secondary);
+
+            .stat-value {
+                font-weight: 700;
+                color: var(--text-primary);
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+        }
+    }
+
+    .users-toolbar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                color: var(--text-muted);
+                font-size: 16px;
+            }
+
+            input {
+                width: 100%;
+                padding: 10px 14px 10px 40px;
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius-sm);
+                background: var(--bg-elevated);
+                font-size: 14px;
+                color: var(--text-primary);
+                outline: none;
+                transition: all 0.2s;
+                font-family: inherit;
+
+                &:focus {
+                    border-color: var(--accent);
+                    box-shadow: 0 0 0 3px var(--accent-glow);
+                }
+
+                &::placeholder {
+                    color: var(--text-muted);
+                }
+            }
+        }
+
+        .filter-select {
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-elevated);
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+
+            &:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-glow);
+            }
+        }
+    }
+
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-size: 14px;
+        grid-column: 1 / -1;
+    }
 }
 
-
-.list-users .header {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding: 0 10px;
-    flex-wrap: wrap;
-  }
-
-                .list-users .header input[type="search"] {
-    flex: 1;
-    min-width: 250px;
-    padding: 10px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-
-  .list-users .header select {
-    padding: 10px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-    font-size: 14px;
-  }
-
-  .no-results {
-    text-align: center;
-    padding: 40px;
-    color: #718096;
-    font-style: italic;
-  }
-
-  @media (max-width: 768px) {
-    .list-users .header {
-      flex-direction: column;
+@media (max-width: 768px) {
+    .list-users {
+        .users-grid {
+            grid-template-columns: 1fr;
+        }
     }
-
-    .list-users .header input[type="search"] {
-      min-width: 100%;
-    }
-  }
+}

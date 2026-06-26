@@ -190,9 +190,12 @@ export default function Tips() {
               <li
                 key={day}
                 className={`date-tab ${currentDate === day ? 'active' : ''} ${info.isToday ? 'today' : ''}`}
-                onClick={(e) => {
+                onPointerDown={() => {
+                  dragStartTime.current = Date.now();
+                }}
+                onClick={() => {
                   const elapsed = Date.now() - dragStartTime.current;
-                  if (elapsed < 200) setCurrentDate(day);
+                  if (elapsed < 300) setCurrentDate(day);
                 }}
                 aria-label={day}
               >

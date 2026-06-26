@@ -8,10 +8,13 @@ import { userState } from '../../recoil/atoms';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 
+const ADMIN_EMAILS = ['kkibetkkoir@gmail.com', 'charleykibet254@gmail.com', 'coongames8@gmail.com'];
+
 const Navbar = () => {
   const [opened, setOpened] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useRecoilState(userState);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
 
   const handleLogout = useCallback(() => {
@@ -33,6 +36,10 @@ const Navbar = () => {
     setOpened(false);
   }, [location]);
 
+  useEffect(() => {
+    setIsAdmin(user && ADMIN_EMAILS.includes(user.email));
+  }, [user]);
+
   return (
     <header className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-inner">
@@ -46,12 +53,21 @@ const Navbar = () => {
             <NavLink to="/" className="nav-link">Home</NavLink>
             <NavLink to="/about" className="nav-link">About</NavLink>
             <NavLink to="/subscribe" className="nav-link">Subscribe</NavLink>
+            {isAdmin && (
+              <>
+                <NavLink to="/add-tip" className="nav-link">Add Tip</NavLink>
+                <NavLink to="/users" className="nav-link">Users</NavLink>
+              </>
+            )}
           </div>
           <div className="nav-actions">
             {user ? (
-              <button className="btn ghost" onClick={handleLogout}>
-                Logout
-              </button>
+              <>
+                <span className="nav-user">{user.username || user.email?.split('@')[0]}</span>
+                <button className="btn ghost" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <NavLink className="btn ghost" to="/login" state={{ from: location }}>

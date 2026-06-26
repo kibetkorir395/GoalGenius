@@ -1,23 +1,29 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import './Auth.scss'
 import { registerUser } from '../../firebase';
 import AppHelmet from '../AppHelmet';
 import ScrollToTop from '../ScrollToTop';
 import { useSetRecoilState } from 'recoil';
 import { notificationState } from '../../recoil/atoms';
-import { FiUserPlus } from 'react-icons/fi';
+import { FiUserPlus, FiMail, FiLock, FiUser } from 'react-icons/fi';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [processing, setProcessing] = useState(false);
   const setNotification = useSetRecoilState(notificationState);
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (email && password) {
-      registerUser(username, email, password, setNotification);
+      setProcessing(true);
+      registerUser(username, email, password, setNotification, () => {
+        setProcessing(false);
+        navigate('/', { replace: true });
+      });
     } else {
       setNotification({
         isVisible: true,
@@ -37,43 +43,52 @@ export const Register = () => {
         <form onSubmit={handleRegister}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-field"
-              required
-            />
+            <div className="input-group">
+              <FiMail className="input-icon" />
+              <input
+                type="email"
+                id="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-field"
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
             <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              placeholder="Choose a username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="input-field"
-              required
-            />
+            <div className="input-group">
+              <FiUser className="input-icon" />
+              <input
+                type="text"
+                id="username"
+                placeholder="Choose a username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="input-field"
+                required
+              />
+            </div>
             <p className="hint-text">4-15 characters, letters, numbers, dots, underscores, hyphens</p>
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Create a password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-field"
-              required
-            />
+            <div className="input-group">
+              <FiLock className="input-icon" />
+              <input
+                type="password"
+                id="password"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+                required
+              />
+            </div>
           </div>
-          <button type="submit" className="btn">
-            <FiUserPlus /> Create Account
+          <button type="submit" className="btn" disabled={processing}>
+            <FiUserPlus /> {processing ? 'Creating...' : 'Create Account'}
           </button>
         </form>
         <p className="auth-footer">

@@ -1,51 +1,66 @@
 import "./UserCard.scss";
-import backgroundImage from '../../assets/3.jpg';
-import backgroundImage2 from '../../assets/4.jpg';
-import backgroundImage3 from '../../assets/5.jpg';
-import backgroundImage4 from '../../assets/10.jpg';
-import { MdOutlineEmail } from 'react-icons/md';
+import { BiUser, BiEnvelope } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 
-const UserCard = ({user}) => {
-
+const UserCard = ({ user }) => {
   function formatDate(dateString) {
+    if (!dateString) return "Not subscribed";
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid date";
     let day = date.getDate();
-    
-    // Append the suffix for the day (st, nd, rd, th)
-    const suffix = (day) => {
-        if (day > 3 && day < 21) return 'th'; // 11th to 13th are special
-        switch (day % 10) {
-            case 1: return 'st';
-            case 2: return 'nd';
-            case 3: return 'rd';
-            default: return 'th';
-        }
+    const suffix = (d) => {
+      if (d > 3 && d < 21) return "th";
+      switch (d % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+      }
     };
-    
-    const formattedDate = `${day}${suffix(day)} ${date.toLocaleString('en-GB', { month: 'long', year: 'numeric' })}`;
-    return formattedDate;
-}
-  return (  
-  <NavLink className="card"  to={`/users/${user.username ? "@" + user.username : user.email}`} state={user}>
-    <div className="cover-bg"  style={{
-      background: `#fff url(${user.isPremium ? backgroundImage3 : backgroundImage4}) center no-repeat`,
-    }}></div>
-    <div className="user-info-wrap">
-      <img src={user.isPremium ? backgroundImage : backgroundImage2} alt="" className="user-photo" />
-      <div className="user-info">
-        <div className="user-name">{user.subscription ? user.subscription : " Free"} Plan</div>
-        <p className="user-title">@{user.username}</p>
+    return `${day}${suffix(day)} ${date.toLocaleString("en-GB", { month: "long", year: "numeric" })}`;
+  }
+
+  const initials = (user.username || user.email || "U")
+    .split(/[@\s]+/)
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <NavLink
+      className="user-card"
+      to={`/users/${user.email}`}
+      state={user}
+    >
+      <div className="user-card-top">
+        <div className={`user-badge ${user.isPremium ? "premium" : "free"}`}>
+          {user.isPremium ? "VIP" : "Free"}
+        </div>
       </div>
-    </div>
-    <div className="user-bio">
-      <div className="data"><MdOutlineEmail className="mail"/> {user.email}</div>
-      {user.subDate && <>
-        <div className="data">{user.subscription}</div>
-        <div className="data">{formatDate(user.subDate)}</div>
-      </>}
+      <div className="user-card-body">
+        <div className="user-avatar">
+          <span>{initials}</span>
+        </div>
+        <div className="user-details">
+          <div className="user-name">
+            <BiUser className="detail-icon" />
+            <span>{user.username || "No username"}</span>
+          </div>
+          <div className="user-email">
+            <BiEnvelope className="detail-icon" />
+            <span>{user.email}</span>
+          </div>
+          <div className="user-plan">
+            Plan: {user.subscription || "None"}
+          </div>
+          <div className="user-sub-date">
+            {user.subDate ? formatDate(user.subDate) : "Never subscribed"}
+          </div>
+        </div>
       </div>
-  </NavLink>
-)};
+    </NavLink>
+  );
+};
 
 export default UserCard;

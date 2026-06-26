@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+
 import { collection, doc, getDoc, getDocs, getFirestore, query, updateDoc, where, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -16,64 +17,58 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-export const signInUser = (email, password, setNotification) => {
-  signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-    setNotification({
-      isVisible: true,
-      type: 'success',
-      message: "Welcome Back!",
-    });
-  }).catch(async (error) => {
-    const errorMessage = await error.message;
-    setNotification({
-      isVisible: true,
-      type: 'error',
-      message: errorMessage,
-    });
-  });
-  return;
-}
-
-export const registerUser = (username, email, password, setNotification) => {
-  createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
-    const user = userCredential.user;
-    const userDocRef = doc(db, "users", user.email);
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
-      return setNotification({
+export const signInUser = (email, password, setNotification, onSuccess) => {
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      setNotification({
+        isVisible: true,
+        type: 'success',
+        message: "Welcome Back!",
+      });
+      if (onSuccess) onSuccess();
+    })
+    .catch((error) => {
+      setNotification({
         isVisible: true,
         type: 'error',
-        message: "The user already exists! Login insted.",
+        message: error.message,
       });
-    }
-    await setDoc(userDocRef, {
-      email: user.email,
-      username: username,
-      isPremium: false,
-      subscription: null
-    }).then(async (response) => {
+    });
+}
+
+export const registerUser = (username, email, password, setNotification, onSuccess) => {
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(async (userCredential) => {
+      const user = userCredential.user;
+      const userDocRef = doc(db, "users", user.email);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        return setNotification({
+          isVisible: true,
+          type: 'error',
+          message: "The user already exists! Login instead.",
+        });
+      }
+      await setDoc(userDocRef, {
+        email: user.email,
+        username: username,
+        isPremium: false,
+        subscription: null
+      });
       setNotification({
         isVisible: true,
         type: 'success',
         message: `User with ${user.email} has been registered successfully`,
       });
-    }).catch(async (error) => {
-      const errorMessage = await error.message;
+      if (onSuccess) onSuccess();
+    })
+    .catch((error) => {
       setNotification({
         isVisible: true,
         type: 'error',
-        message: errorMessage,
+        message: error.message,
       });
     });
-  }).catch(async (error) => {
-    const errorMessage = await error.message;
-    setNotification({
-      isVisible: true,
-      type: 'error',
-      message: errorMessage,
-    });
-  });
-  return;
 }
 
 export const updateUser = async (userId, isPremium, subscription, setNotification) => {
@@ -107,18 +102,19 @@ export const getUser = async (userId, setUserData) => {
 
 export const getAllusers = async (setUsers, setLoading) => {
   setLoading(true);
-  const usersCollectionRef = collection(db, "users");
-
-
-  const users = [];
-  await getDocs(usersCollectionRef).then((data) => {
-    data.forEach((doc) => {
+  try {
+    const usersCollectionRef = collection(db, "users");
+    const querySnapshot = await getDocs(usersCollectionRef);
+    const users = [];
+    querySnapshot.forEach((doc) => {
       users.push({ id: doc.id, ...doc.data() });
     });
-  }).then(() => {
     setUsers(users);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+  } finally {
     setLoading(false);
-  }).catch(err => setLoading(false));
+  }
 };
 
 export const addMailList = async (data, setNotification, setEmail) => {
@@ -209,18 +205,23 @@ export const updateTip = async (id, data, setNotification, setLoading, setData) 
 
 export const getTips = async (setTips, setLoading, currentDate) => {
   setLoading(true);
-  const tipsCollectionRef = collection(db, "tips");
-  var q = query(tipsCollectionRef, where("date", "==", currentDate));
-
-  const tips = [];
-  await getDocs(q).then((data) => {
-    data.forEach((doc) => {
+  try {
+    const tipsCollectionRef = collection(db, "tips");
+    const q = query(tipsCollectionRef, where("date", "==", currentDate));
+    const querySnapshot = await getDocs(q);
+    const tips = [];
+    querySnapshot.forEach((doc) => {
       tips.push({ id: doc.id, ...doc.data() });
     });
-  }).then(() => {
     setTips(tips);
+  } catch (err) {
+    console.error("Error fetching tips:", err);
+    setTips([]);
+  } finally {
     setLoading(false);
-  }).catch(err => setLoading(false)).finally(() => {
-    setLoading(false);
-  })
+  }
 };
+
+export const sendPasswordReset = async (email) => {
+  return await sendPasswordResetEmail(auth, email);
+}
