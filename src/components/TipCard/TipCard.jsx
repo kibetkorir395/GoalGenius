@@ -7,73 +7,75 @@ import { userNameSelector } from "../../recoil/selectors";
 import { useRecoilValue } from "recoil";
 
 export default function TipCard({ tip, isAdmin, today }) {
-    const [hidden, setHidden] = useState(true);
-    const isPremiumUser = useRecoilValue(userNameSelector);
+  const [hidden, setHidden] = useState(true);
+  const isPremiumUser = useRecoilValue(userNameSelector);
 
-    useEffect(() => {
-        if (isAdmin || isPremiumUser) {
-            setHidden(false);
-        } else if (tip.date === today && tip.premium) {
-
-            if (tip.status !== "finished") {
-                setHidden(true);
-            } else {
-                setHidden(false);
-            }
-
-        } else {
-            setHidden(false);
-        }
-
-    }, [isPremiumUser, isAdmin, tip]);
-
-    function getTipStatus(tip) {
-        if (tip.status === "pending") {
-            return (
-                <span className="pending">
-                    pend🔄
-                </span>
-            );
-        } else if (tip.won === "won") {
-            return (
-                <span className="won">
-                    won✅
-                </span>
-            );
-        } else {
-            return (
-                <span className="lost">
-                    lost❌
-                </span>
-            );
-        }
+  useEffect(() => {
+    if (isAdmin || isPremiumUser) {
+      setHidden(false);
+    } else if (tip.date === today && tip.premium) {
+      setHidden(tip.status !== "finished");
+    } else {
+      setHidden(false);
     }
+  }, [isPremiumUser, isAdmin, tip, today]);
 
+  const getStatus = (tip) => {
+    if (tip.status === "pending") {
+      return { label: 'PENDING', className: 'status-pending', icon: '⏳' };
+    } else if (tip.won === "won") {
+      return { label: 'WON', className: 'status-won', icon: '✅' };
+    } else {
+      return { label: 'LOST', className: 'status-lost', icon: '❌' };
+    }
+  };
 
-    return (
-        <div className="tip-card" style={{ borderLeft: tip.premium ? "2px solid gold" : "2px solid silver" }}>
-            <div className="top">
-                <p style={{
-                    backgroundColor: tip.premium ? "gold" : "silver",
-                    padding: '3px',
-                }}>odd: {tip.odd}</p>
-                {isAdmin && <NavLink to={"/edit-tip"} state={tip}><BiEdit /></NavLink>}
-                {<div className="tag" style={{ backgroundColor: tip.premium ? "gold" : "white" }}>{tip.premium ? "💎 VIP" : "🔓 FREE"}</div>}
-            </div>
+  const status = getStatus(tip);
+  const isPremium = tip.premium;
 
-            <div className="center">
-                <div className='info time-card'>
-                    <p>{tip.time}</p>
-                </div>
-                <div className="teams">
-                    <p className={`name ${hidden && "hidden"}`}>{!hidden ? `${truncateTitle(tip.home, 60)}` : "CLOSED"}</p>
-                    <div className="results">{tip.pick}</div>
-                    <p className={`name ${hidden && "hidden"}`} > {!hidden ? `${truncateTitle(tip.away, 60)}` : "CLOSED"}</p>
-                </div>
-                <div className='info'>
-                    <p>{tip.results ? tip.results : "?-?"}</p>
-                    <p>{getTipStatus(tip)}</p>
-                </div>
-            </div>
-        </div>)
+  return (
+    <div className={`tip-card ${isPremium ? 'premium' : ''}`}>
+      <div className="tip-card-header">
+        <div className="tip-meta">
+          <span className="tip-time">{tip.time}</span>
+          <span className={`tip-badge ${isPremium ? 'vip' : 'free'}`}>
+            {isPremium ? '💎 VIP' : '🔓 Free'}
+          </span>
+        </div>
+        <div className="tip-actions">
+          <span className="tip-odd">Odd {tip.odd}</span>
+          {isAdmin && (
+            <NavLink className="tip-edit" to="/edit-tip" state={tip}>
+              <BiEdit />
+            </NavLink>
+          )}
+        </div>
+      </div>
+
+      <div className="tip-card-body">
+        <div className="tip-teams">
+          <span className={`team-name home ${hidden ? 'hidden' : ''}`}>
+            {hidden ? 'Locked' : truncateTitle(tip.home, 50)}
+          </span>
+          <div className="tip-vs">
+            <span className="vs-pick">{tip.pick}</span>
+          </div>
+          <span className={`team-name away ${hidden ? 'hidden' : ''}`}>
+            {hidden ? 'Locked' : truncateTitle(tip.away, 50)}
+          </span>
+        </div>
+      </div>
+
+      <div className="tip-card-footer">
+        <div className="tip-result">
+          <span className="result-label">Result</span>
+          <span className="result-score">{tip.results || '—'}</span>
+        </div>
+        <div className={`tip-status ${status.className}`}>
+          <span className="status-icon">{status.icon}</span>
+          <span className="status-label">{status.label}</span>
+        </div>
+      </div>
+    </div>
+  );
 }

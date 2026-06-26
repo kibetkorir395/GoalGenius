@@ -2,73 +2,61 @@ import './Pricing.scss';
 import { NavLink, useLocation } from 'react-router-dom';
 import { pricings } from '../../data';
 import { useState } from 'react';
+import { FiCheck, FiChevronRight } from 'react-icons/fi';
 
 export default function Pricing() {
-  const [billing, setBilling] = useState("Day");
+  const [billing, setBilling] = useState('Day');
   const location = useLocation();
+
+  const plans = pricings.filter(p => p.billing === billing);
+
   return (
-    <div className='pricing' id='pricing'>
-      <h1 className='head'>Pricing</h1>
-      <div className="pricing-header">
-        <div className="plans-switch-container">
-          <div className="plans-options">
-            <label>
-              <input
-                type="radio"
-                name="billing"
-                value="Day"
-                checked={billing === "Day"}
-                onChange={() => setBilling("Day")}
-              />
-              Daily
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="billing"
-                value="Week"
-                checked={billing === "Week"}
-                onChange={() => setBilling("Week")}
-              />
-              Weekly
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="billing"
-                value="Month"
-                checked={billing === "Month"}
-                onChange={() => setBilling("Month")}
-              />
-              Monthly
-            </label>
-          </div>
-        </div>
+    <div className='pricing-section' id='pricing'>
+      <h2 className='section-title'>Pricing Plans</h2>
+      <p className='section-subtitle'>Choose the plan that works for you. Upgrade anytime.</p>
 
+      <div className='billing-tabs'>
+        {['Day', 'Week', 'Month'].map((b) => (
+          <button
+            key={b}
+            className={`billing-tab ${billing === b ? 'active' : ''}`}
+            onClick={() => setBilling(b)}
+          >
+            {b === 'Day' ? 'Daily' : b === 'Week' ? 'Weekly' : 'Monthly'}
+          </button>
+        ))}
       </div>
-      <div className="wrapper">
-        {
-          pricings.filter(item => item.billing === billing).map(pricing => {
-            return (
-              <div key={pricing.id}>
-                <h2><span>KSH {pricing.price}</span>/{pricing.billing}</h2>
-                <p>{pricing.title}</p>
-                <h3>Features</h3>
-                <ul>
-                  {
-                    pricing.features.map(feature => {
-                      return <li key={feature.split(" ").join("_")}>{feature}</li>
-                    })
-                  }
-                </ul>
-                <img src="https://i.postimg.cc/2jV99bKc/Vector-1.png" alt="bg" className="table-bg" />
-                <NavLink className="btn" style={{ backgroundColor: pricing.color }} state={{ from: location, subscription: pricing }} to={"/subscribe"}>Subscribe now</NavLink>
-              </div>
-            );
-          })
-        }
 
+      <div className='pricing-cards'>
+        {plans.map((plan, idx) => (
+          <div key={plan.id} className={`pricing-card ${idx === 1 ? 'popular' : ''}`} style={{ animationDelay: `${idx * 0.1}s` }}>
+            {idx === 1 && <span className='popular-badge'>Best Value</span>}
+            <div className='card-header'>
+              <h3 className='plan-name'>{plan.plan}</h3>
+              <p className='plan-title'>{plan.title}</p>
+            </div>
+            <div className='card-price'>
+              <span className='price'>KSH {plan.price}</span>
+              <span className='period'>/{plan.billing}</span>
+            </div>
+            <ul className='card-features'>
+              {plan.features.map((feature, i) => (
+                <li key={i}>
+                  <FiCheck className='feature-icon' />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            <NavLink
+              className='btn subscribe-btn'
+              state={{ from: location, subscription: plan }}
+              to='/subscribe'
+            >
+              Subscribe Now <FiChevronRight />
+            </NavLink>
+          </div>
+        ))}
       </div>
     </div>
-  )
+  );
 }

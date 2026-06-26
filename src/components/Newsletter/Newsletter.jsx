@@ -1,33 +1,54 @@
-import {useState } from 'react';
+import { useState } from 'react';
 import './Newsletter.scss';
 import { addMailList } from '../../firebase';
-import { useRecoilState, useSetRecoilState} from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { notificationState } from '../../recoil/atoms';
+import { FiMail, FiArrowRight } from 'react-icons/fi';
 
 const Newsletter = () => {
     const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
     const setNotification = useSetRecoilState(notificationState);
-  
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      addMailList({ email },  setNotification, setEmail);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!email || !email.includes('@')) {
+            setNotification({ isVisible: true, type: 'warning', message: 'Please enter a valid email address' });
+            return;
+        }
+        setLoading(true);
+        addMailList({ email }, setNotification, (val) => {
+            setEmail(val);
+            setLoading(false);
+        });
     };
+
     return (
-        <div className='newsletter theme'  id='subscribe'>
-            <h3>
-                Subscribe to our newsletter
-            </h3>
-            <p>
-                Kindly fill the form below.
-            </p>
-            <form onSubmit={handleSubmit}>
-                <input type='email' placeholder="example@company.com" value={email} onChange={(e) => setEmail(e.target.value)} pattern='/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/'/>
-                <button type='submit'>
-                    SUBMIT
-                </button>
-            </form>
+        <div className='newsletter-section' id='subscribe'>
+            <div className='newsletter-card'>
+                <div className='newsletter-icon'>
+                    <FiMail />
+                </div>
+                <h2 className='section-title'>Stay in the Loop</h2>
+                <p className='section-subtitle'>Get the latest tips and insights delivered to your inbox.</p>
+                <form onSubmit={handleSubmit} className='newsletter-form'>
+                    <div className='input-wrap'>
+                        <FiMail className='input-icon' />
+                        <input
+                            type='email'
+                            placeholder='your@email.com'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className='newsletter-input'
+                        />
+                    </div>
+                    <button type='submit' className='btn' disabled={loading}>
+                        {loading ? 'Subscribing...' : <><FiArrowRight /> Subscribe</>}
+                    </button>
+                </form>
+            </div>
         </div>
     );
-}
+};
 
 export default Newsletter;

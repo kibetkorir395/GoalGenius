@@ -7,11 +7,10 @@ export default function NotFound() {
     <div className='not-found'>
         <AppHelmet title={"404 Error"}/>
         <ScrollToTop />
-        <h1>404 Error</h1>
-        <h2 className='sub-heading'>PAGE NOT FOUND</h2>
-        <button onClick={() => {
-          window.history.back();
-        }} className='btn'>Go Back &raquo;</button>
+        <span className="not-found-code">404</span>
+        <h2>Page Not Found</h2>
+        <p>The page you are looking for does not exist or has been moved.</p>
+        <button onClick={() => window.history.back()} className='btn'>Go Back</button>
     </div>
   )
 }

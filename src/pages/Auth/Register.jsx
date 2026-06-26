@@ -6,6 +6,7 @@ import AppHelmet from '../AppHelmet';
 import ScrollToTop from '../ScrollToTop';
 import { useSetRecoilState } from 'recoil';
 import { notificationState } from '../../recoil/atoms';
+import { FiUserPlus } from 'react-icons/fi';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
@@ -21,30 +22,64 @@ export const Register = () => {
       setNotification({
         isVisible: true,
         type: 'warning',
-        message: "You have entered an invalid email address!",
+        message: "Please enter a valid email and password",
       });
-    };
-    return;
+    }
   }
 
   return (
-    <div className='auth'>
+    <div className='auth-page'>
       <AppHelmet title={"Register"} />
       <ScrollToTop />
-      <form onSubmit={handleRegister}>
+      <div className="auth-card">
         <h1>Get Started</h1>
-        <label htmlFor="email">Email:</label>
-        <input type="email" id='email' placeholder="example@company.com" value={email} onChange={(e) => setEmail(e.target.value)} pattern='/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/' required />
-        <label htmlFor="username">Username:</label>
-        <input type="text" id='username' placeholder="username" value={username} onChange={(e) => setUsername(e.target.value)} pattern={'/^[a-zA-Z0-9._-]{4,15}$/'} required />
-        <span>username should be between 4 and 15 characters long and can include letters, numbers, underscores (_), periods (.), and hyphens (-).</span>
-        <label htmlFor="password">Password:</label>
-        <input type="password" id='password' placeholder="******" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type='submit' className='btn'>SIGN UP</button>
-      </form>
-      <span>
-        Already registered? Login <NavLink to='/login' className='login'>here</NavLink>
-      </span>
+        <p className="auth-subtitle">Create your account to unlock VIP tips</p>
+        <form onSubmit={handleRegister}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-field"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              placeholder="Choose a username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="input-field"
+              required
+            />
+            <p className="hint-text">4-15 characters, letters, numbers, dots, underscores, hyphens</p>
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input-field"
+              required
+            />
+          </div>
+          <button type="submit" className="btn">
+            <FiUserPlus /> Create Account
+          </button>
+        </form>
+        <p className="auth-footer">
+          Already registered? <NavLink to="/login">Sign In</NavLink>
+        </p>
+      </div>
     </div>
   )
 }

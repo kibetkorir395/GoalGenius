@@ -1,4 +1,3 @@
-// App.js
 import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -7,7 +6,6 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth, getUser } from './firebase';
 import { IoArrowUp } from "react-icons/io5";
 
-import Topbar from './components/Topbar/Topbar';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import Loader from './components/Loader/Loader';
@@ -24,7 +22,7 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import ProtectedAuthRoute from './utils/ProtectedAuthRoute';
 import ProtectedAdminRoute from './utils/ProtectedAdminRoute';
 import { checkSubscriptionStatus } from './utils/subscription';
-import Subscription2 from './pages/Pay/Subscription2';
+import Subscription from './pages/Pay/Subscription';
 import Notification from './components/Notification/Notification';
 
 function App() {
@@ -42,7 +40,6 @@ function App() {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [setUser]);
 
@@ -51,11 +48,8 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 200);
-    };
-
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 200);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -63,33 +57,30 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (loading) return <Loader />;
+
   return (
     <div className="App">
-      {loading ? <Loader /> : (
-        <>
-          <Topbar />
-          <Navbar />
-          <Notification />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="subscribe" element={<ProtectedRoute><Subscription2 /></ProtectedRoute>} />
-            <Route path="about" element={<About />} />
-            <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
-            <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
-            <Route path="add-tip" element={<ProtectedAdminRoute><AddTip /></ProtectedAdminRoute>} />
-            <Route path="edit-tip" element={<ProtectedAdminRoute><EditTip /></ProtectedAdminRoute>} />
-            <Route path="users" element={<ProtectedAdminRoute><ListUsers /></ProtectedAdminRoute>} />
-            <Route path="users/:id" element={<ProtectedAdminRoute><EditUser /></ProtectedAdminRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          {isScrolled && (
-            <button className="btn top" title="to top" onClick={handleScrollToTop}>
-              <IoArrowUp />
-            </button>
-          )}
-          <Footer />
-        </>
+      <Navbar />
+      <Notification />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+        <Route path="about" element={<About />} />
+        <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
+        <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
+        <Route path="add-tip" element={<ProtectedAdminRoute><AddTip /></ProtectedAdminRoute>} />
+        <Route path="edit-tip" element={<ProtectedAdminRoute><EditTip /></ProtectedAdminRoute>} />
+        <Route path="users" element={<ProtectedAdminRoute><ListUsers /></ProtectedAdminRoute>} />
+        <Route path="users/:id" element={<ProtectedAdminRoute><EditUser /></ProtectedAdminRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {isScrolled && (
+        <button className="btn top" title="to top" onClick={handleScrollToTop}>
+          <IoArrowUp />
+        </button>
       )}
+      <Footer />
     </div>
   );
 }
