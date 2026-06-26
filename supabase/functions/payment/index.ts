@@ -8,6 +8,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+async function safeJson(response: Response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text, status: response.status };
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -33,7 +42,7 @@ Deno.serve(async (req: Request) => {
         }),
       });
 
-      const data = await response.json();
+      const data = await safeJson(response);
       return new Response(JSON.stringify(data), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -50,7 +59,7 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({ checkoutId }),
       });
 
-      const data = await response.json();
+      const data = await safeJson(response);
       return new Response(JSON.stringify(data), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -77,7 +86,7 @@ Deno.serve(async (req: Request) => {
         }),
       });
 
-      const data = await response.json();
+      const data = await safeJson(response);
       return new Response(JSON.stringify(data), {
         status: response.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

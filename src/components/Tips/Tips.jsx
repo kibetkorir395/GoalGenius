@@ -26,12 +26,8 @@ const GAME_TYPES = [
 ];
 
 export default function Tips() {
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
-
   const [loading, setLoading] = useState(false);
   const [days, setDays] = useState(null);
   const [currentDate, setCurrentDate] = useState(null);
@@ -43,7 +39,10 @@ export default function Tips() {
   const [totalCount, setTotalCount] = useState(0);
 
   const tabBoxRef = useRef(null);
-  const dragStartTime = useRef(0);
+  const isDragging = useRef(false);
+  const hasDragged = useRef(false);
+  const startX = useRef(0);
+  const startScroll = useRef(0);
 
   const formatDate = useCallback((dateString) => {
     const date = new Date(dateString);
@@ -53,7 +52,7 @@ export default function Tips() {
   const returnDate = useCallback((dateString) => {
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day);
-    if (isNaN(date.getTime())) return 'Invalid Date';
+    if (isNaN(date.getTime())) return { weekday: 'Invalid', day: 'Date', isToday: false };
     const today = new Date();
     const isToday = date.getDate() === today.getDate() &&
       date.getMonth() === today.getMonth() &&
@@ -71,7 +70,7 @@ export default function Tips() {
     setShowRight(maxScroll > scrollVal + 2);
   }, []);
 
-  const handleClick = useCallback((direction) => {
+  const handleScrollClick = useCallback((direction) => {
     if (!tabBoxRef.current) return;
     const scrollAmount = direction === 'left' ? -280 : 280;
     tabBoxRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
@@ -129,20 +128,24 @@ export default function Tips() {
   useEffect(() => {
     const tabBox = tabBoxRef.current;
     if (!tabBox) return;
+
     const onDown = (e) => {
-      setIsDragging(true);
-      dragStartTime.current = Date.now();
-      setStartX(e.pageX - tabBox.offsetLeft);
-      setScrollLeft(tabBox.scrollLeft);
+      isDragging.current = true;
+      hasDragged.current = false;
+      startX.current = e.pageX;
+      startScroll.current = tabBox.scrollLeft;
+      tabBox.style.cursor = 'grabbing';
     };
     const onMove = (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const x = e.pageX - tabBox.offsetLeft;
-      const walk = (x - startX) * 3;
-      tabBox.scrollLeft = scrollLeft - walk;
+      if (!isDragging.current) return;
+      const dx = e.pageX - startX.current;
+      if (Math.abs(dx) > 5) hasDragged.current = true;
+      tabBox.scrollLeft = startScroll.current - dx;
     };
-    const onUp = () => setIsDragging(false);
+    const onUp = () => {
+      isDragging.current = false;
+      tabBox.style.cursor = 'grab';
+    };
     const onScroll = () => handleIcons();
 
     tabBox.addEventListener('mousedown', onDown);
@@ -150,6 +153,7 @@ export default function Tips() {
     tabBox.addEventListener('mouseup', onUp);
     tabBox.addEventListener('mouseleave', onUp);
     tabBox.addEventListener('scroll', onScroll);
+
     return () => {
       tabBox.removeEventListener('mousedown', onDown);
       tabBox.removeEventListener('mousemove', onMove);
@@ -157,7 +161,7 @@ export default function Tips() {
       tabBox.removeEventListener('mouseleave', onUp);
       tabBox.removeEventListener('scroll', onScroll);
     };
-  }, [isDragging, startX, scrollLeft, handleIcons]);
+  }, [handleIcons]);
 
   useEffect(() => {
     const admins = ['kkibetkkoir@gmail.com', 'charleykibet254@gmail.com', 'coongames8@gmail.com'];
@@ -178,24 +182,19 @@ export default function Tips() {
         </p>
       </div>
 
-      {/* Date picker */}
       <div className='date-picker'>
-        <button className={`date-arrow ${showLeft ? 'visible' : ''}`} onClick={() => handleClick('left')}>
+        <button className={`date-arrow ${showLeft ? 'visible' : ''}`} onClick={() => handleScrollClick('left')}>
           <MdArrowBackIos />
         </button>
-        <ul className={`date-tabs ${isDragging ? 'dragging' : ''}`} ref={tabBoxRef}>
+        <ul className='date-tabs' ref={tabBoxRef} style={{ cursor: 'grab' }}>
           {days && days.map((day) => {
             const info = returnDate(day);
             return (
               <li
                 key={day}
                 className={`date-tab ${currentDate === day ? 'active' : ''} ${info.isToday ? 'today' : ''}`}
-                onPointerDown={() => {
-                  dragStartTime.current = Date.now();
-                }}
                 onClick={() => {
-                  const elapsed = Date.now() - dragStartTime.current;
-                  if (elapsed < 300) setCurrentDate(day);
+                  if (!hasDragged.current) setCurrentDate(day);
                 }}
                 aria-label={day}
               >
@@ -206,12 +205,11 @@ export default function Tips() {
             );
           })}
         </ul>
-        <button className={`date-arrow ${showRight ? 'visible' : ''}`} onClick={() => handleClick('right')}>
+        <button className={`date-arrow ${showRight ? 'visible' : ''}`} onClick={() => handleScrollClick('right')}>
           <MdArrowForwardIos />
         </button>
       </div>
 
-      {/* Game type filter */}
       <div className='game-filter'>
         {GAME_TYPES.map((type) => (
           <button
@@ -225,7 +223,6 @@ export default function Tips() {
         ))}
       </div>
 
-      {/* Subscribe CTA */}
       <div className='tips-cta'>
         <NavLink to='/subscribe' className='btn'>
           <span className='diamond'>💎</span>

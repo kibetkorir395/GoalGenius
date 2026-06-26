@@ -1,6 +1,15 @@
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+async function safeJson(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { error: "Invalid JSON response", raw: text, status: response.status };
+  }
+}
+
 export const PaymentService = {
   async initiateMpesa(amount, currency, phone, email, fullname) {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/payment/initiate/mpesa`, {
@@ -18,8 +27,9 @@ export const PaymentService = {
         fullname: fullname || 'Customer',
       }),
     });
-    if (!response.ok) throw new Error(`Payment initiation failed: ${response.status}`);
-    return await response.json();
+    const data = await safeJson(response);
+    if (!response.ok) throw new Error(data.error || data.message || `Payment failed: ${response.status}`);
+    return data;
   },
 
   async checkStatus(checkoutId) {
@@ -32,8 +42,9 @@ export const PaymentService = {
       },
       body: JSON.stringify({ checkoutId }),
     });
-    if (!response.ok) throw new Error(`Status check failed: ${response.status}`);
-    return await response.json();
+    const data = await safeJson(response);
+    if (!response.ok) throw new Error(data.error || data.message || `Status check failed: ${response.status}`);
+    return data;
   },
 
   pollTransaction(checkoutId, onSuccess, onFailure, maxAttempts = 30) {
@@ -55,10 +66,35 @@ export const PaymentService = {
       } catch (error) {
         if (attempts >= maxAttempts) {
           clearInterval(interval);
-          onFailure({ timeout: true });
+          onFailure({ timeout: true, error: error.message });
         }
       }
     }, 5000);
     return () => clearInterval(interval);
+  },
+
+  async initiateCard(amount, currency, email, fullname, card_number, cvv, expiry_month, expiry_year, pin) {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/payment/initiate/card`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${ANON_KEY}`,
+        'apikey': ANON_KEY,
+      },
+      body: JSON.stringify({
+        amount: amount.toString(),
+        currency: currency || 'KES',
+        email,
+        fullname,
+        card_number,
+        cvv,
+        expiry_month,
+        expiry_year,
+        pin,
+      }),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) throw new Error(data.error || data.message || `Payment failed: ${response.status}`);
+    return data;
   },
 };
