@@ -17,9 +17,9 @@ const EXCHANGE_RATE = 150;
 
 const PAYMENT_METHODS = [
   { id: 'mpesa', label: 'M-Pesa', icon: FiSmartphone, desc: 'Pay via M-Pesa' },
-  { id: 'card', label: 'Card', icon: FiCreditCard, desc: 'Visa / Mastercard' },
+  //{ id: 'card', label: 'Card', icon: FiCreditCard, desc: 'Visa / Mastercard' },
   { id: 'crypto', label: 'Crypto', icon: SiBitcoinsv, desc: 'BTC, ETH, USDT' },
-  { id: 'paypal', label: 'PayPal', icon: FiGlobe, desc: 'Pay with PayPal' },
+  //{ id: 'paypal', label: 'PayPal', icon: FiGlobe, desc: 'Pay with PayPal' },
 ];
 
 const paypalInitialOptions = {
@@ -33,7 +33,7 @@ export default function Subscription() {
   const [processing, setProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('mpesa');
   const [copied, setCopied] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState('USDTTRC20');
+  const [selectedCurrency, setSelectedCurrency] = useState('BTC');
   const [cryptoData, setCryptoData] = useState(null);
   const [currencies, setCurrencies] = useState([]);
   const [paypalKey, setPaypalKey] = useState(0);
@@ -234,7 +234,6 @@ export default function Subscription() {
   };
 
   const onPayPalError = (err) => {
-    console.error('PayPal error:', err);
     setProcessing(false);
     setError('PayPal payment failed. Please try again.');
   };

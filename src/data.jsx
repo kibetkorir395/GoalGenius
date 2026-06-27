@@ -24,7 +24,7 @@ export const pricings = [
     plan: "Weekly",
     billing: "Week",
     title: "Exclusive weekly access to expert tips",
-    price: 1400,
+    price: 2000,
     features: [
       "20+ odds daily",
       "7 Days Tips",

@@ -104,7 +104,6 @@ export const getUser = async (userId, setUserData) => {
     setUserData(userData);
     return userData; // Return the data
   } else {
-    console.error("User not found");
     return null;
   }
 };
@@ -120,7 +119,6 @@ export const getAllusers = async (setUsers, setLoading) => {
     });
     setUsers(users);
   } catch (err) {
-    console.error("Error fetching users:", err);
   } finally {
     setLoading(false);
   }
@@ -224,7 +222,6 @@ export const getTips = async (setTips, setLoading, currentDate) => {
     });
     setTips(tips);
   } catch (err) {
-    console.error("Error fetching tips:", err);
     setTips([]);
   } finally {
     setLoading(false);

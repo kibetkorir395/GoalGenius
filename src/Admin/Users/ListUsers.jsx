@@ -64,10 +64,6 @@ export default function ListUsers() {
         };
     }, [users]);
 
-    useEffect(() => {
-        users && console.log(users)
-    }, [users]);
-
     return (
         <div className="list-users">
             {loading && <Loader />}
