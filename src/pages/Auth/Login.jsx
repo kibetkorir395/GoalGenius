@@ -15,23 +15,22 @@ export const Login = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [processing, setProcessing] = useState(false);
   const setNotification = useSetRecoilState(notificationState);
-  const navigate = useNavigate();
   const location = useLocation();
+
+  const navigate = useNavigate(); // Add this
   const from = location.state?.from || '/';
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (email && password) {
-      signInUser(email, password, setNotification, () => {
-        navigate(from, { replace: true });
-      });
+    if(email && password) {
+      signInUser(email, password, setNotification, navigate, from); // Pass navigate
     } else {
       setNotification({
         isVisible: true,
         type: 'warning',
-        message: "Please enter your email and password",
+        message: "You have entered an invalid email address!",
       });
-    }
+    };
   }
 
   const handleReset = async (e) => {

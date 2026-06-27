@@ -32,14 +32,15 @@ function App() {
   const setNotification = useSetRecoilState(notificationState);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => { // Make async
       if (currentUser) {
-        getUser(currentUser.email, setUser);
+        await getUser(currentUser.email, setUser); // Wait for user data
       } else {
         setUser(null);
       }
       setLoading(false);
     });
+  
     return () => unsubscribe();
   }, [setUser]);
 

@@ -17,58 +17,64 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-export const signInUser = (email, password, setNotification, onSuccess) => {
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      setNotification({
-        isVisible: true,
-        type: 'success',
-        message: "Welcome Back!",
-      });
-      if (onSuccess) onSuccess();
-    })
-    .catch((error) => {
-      setNotification({
-        isVisible: true,
-        type: 'error',
-        message: error.message,
-      });
+export const signInUser = async (email, password, setNotification, navigate, from) => {
+  signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+    setNotification({
+      isVisible: true,
+      type: 'success',
+      message: "Welcome Back!",
     });
+    navigate(from); // Add redirect
+  }).catch(async (error) => {
+    const errorMessage = await error.message;
+    setNotification({
+      isVisible: true,
+      type: 'error',
+      message: errorMessage,
+    });
+  });
 }
 
-export const registerUser = (username, email, password, setNotification, onSuccess) => {
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(async (userCredential) => {
-      const user = userCredential.user;
-      const userDocRef = doc(db, "users", user.email);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        return setNotification({
-          isVisible: true,
-          type: 'error',
-          message: "The user already exists! Login instead.",
-        });
-      }
-      await setDoc(userDocRef, {
-        email: user.email,
-        username: username,
-        isPremium: false,
-        subscription: null
+export const registerUser = async (username, email, password, setNotification, navigate) => {
+  createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+    const user = userCredential.user;
+    const userDocRef = doc(db, "users", user.email);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      return setNotification({
+        isVisible: true,
+        type: 'error',
+        message: "The user already exists! Login instead.",
       });
+    }
+    await setDoc(userDocRef, {
+      email: user.email,
+      username: username,
+      isPremium: false,
+      subscription: null
+    }).then(async (response) => {
       setNotification({
         isVisible: true,
         type: 'success',
         message: `User with ${user.email} has been registered successfully`,
       });
-      if (onSuccess) onSuccess();
-    })
-    .catch((error) => {
+      navigate('/login'); // Add redirect here
+    }).catch(async (error) => {
+      const errorMessage = await error.message;
       setNotification({
         isVisible: true,
         type: 'error',
-        message: error.message,
+        message: errorMessage,
       });
     });
+  }).catch(async (error) => {
+    const errorMessage = await error.message;
+    setNotification({
+      isVisible: true,
+      type: 'error',
+      message: errorMessage,
+    });
+  });
 }
 
 export const updateUser = async (userId, isPremium, subscription, setNotification) => {
@@ -94,9 +100,12 @@ export const updateUser = async (userId, isPremium, subscription, setNotificatio
 export const getUser = async (userId, setUserData) => {
   const userDoc = await getDoc(doc(db, 'users', userId));
   if (userDoc.exists()) {
-    setUserData(userDoc.data());
+    const userData = userDoc.data();
+    setUserData(userData);
+    return userData; // Return the data
   } else {
     console.error("User not found");
+    return null;
   }
 };
 

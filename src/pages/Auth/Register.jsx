@@ -19,18 +19,14 @@ export const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (email && password) {
-      setProcessing(true);
-      registerUser(username, email, password, setNotification, () => {
-        setProcessing(false);
-        navigate('/', { replace: true });
-      });
+      registerUser(username, email, password, setNotification, navigate); // Pass navigate
     } else {
       setNotification({
         isVisible: true,
         type: 'warning',
-        message: "Please enter a valid email and password",
+        message: "You have entered an invalid email address!",
       });
-    }
+    };
   }
 
   return (
