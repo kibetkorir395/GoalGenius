@@ -40,8 +40,8 @@ export default function EditUser() {
             setEmail(user.email)
             setUsername(user.username)
             setIsPremium(user.isPremium)
-            user.subscription ? setSubscription(user.subscription) : setSubscription("Free")
-            user.subDate && setSubDate(toDateTimeLocal(user.subDate))
+            user.subscription ? setSubscription(user.subscription.plan) : setSubscription("Free")
+            user.subscription && user.subscription.subDate && setSubDate(toDateTimeLocal(user.subscription.subDate))
         }
     }, [user]);
 
@@ -56,8 +56,11 @@ export default function EditUser() {
         const usercollref = doc(db,'users', user.email)
         updateDoc(usercollref,{
           isPremium, 
-          subscription: subscription === "Free" ? "" : subscription,
-          subDate           
+          subscription: !isPremium || subscription === "Free" ? null : {
+            billing: subscription === "Free" ? "" : subscription,
+            plan: subscription === "Free" ? "" : subscription.slice(0, -2),
+            subDate
+          }         
         } ).then(response => {
             setNotification({
                 isVisible: true,
@@ -93,6 +96,28 @@ export default function EditUser() {
             <div className="input-container">
                 <label htmlFor="subscription">Subscription:</label>
                 <input type="text" placeholder='subscription' id='subscription' value={subscription} onChange={(e) => setSubscription(e.target.value)}/>
+                <div className="radio-group">
+                            <label className="radio-label">
+                                <input type="radio" name="games-type" value="Free" checked={subscription === "Free"} onChange={(e) => setSubscription(e.target.value)} />
+                                Free
+                            </label>
+                            <label className="radio-label">
+                                <input type="radio" name="games-type" value="Daily" checked={subscription === "Daily"} onChange={(e) => setSubscription(e.target.value)} />
+                                Daily
+                            </label>
+                            <label className="radio-label">
+                                <input type="radio" name="games-type" value="Weekly" checked={subscription === "Weekly"} onChange={(e) => setSubscription(e.target.value)} />
+                                Weekly
+                            </label>
+                            <label className="radio-label">
+                                <input type="radio" name="games-type" value="Monthly" checked={subscription === "Monthly"} onChange={(e) => setSubscription(e.target.value)} />
+                                Monthly
+                            </label>
+                            <label className="radio-label">
+                                <input type="radio" name="games-type" value="Yearly" checked={subscription === "Yearly"} onChange={(e) => setSubscription(e.target.value)} />
+                                Yearly
+                            </label>
+                        </div>
             </div>
             {<div className="input-container">
                 <label htmlFor="subDate">Subscribed On: </label>

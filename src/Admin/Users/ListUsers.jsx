@@ -29,7 +29,7 @@ export default function ListUsers() {
 
     useEffect(() => {
         if (!isAdmin) {
-            navigate('/', { replace: true });
+            //navigate('/', { replace: true });
         }
     }, [isAdmin, navigate]);
 
@@ -49,8 +49,8 @@ export default function ListUsers() {
             const searchMatch =
                 searchQuery === "" ||
                 (user.username && user.username.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (user.subscription && user.subscription.toLowerCase().includes(searchQuery.toLowerCase()));
+                (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()))// ||
+                //(user.subscription && user.subscription.toLowerCase().includes(searchQuery.toLowerCase()));
 
             return subscriptionMatch && searchMatch;
         });
@@ -62,6 +62,10 @@ export default function ListUsers() {
             premium: users.filter(u => u.isPremium).length,
             free: users.filter(u => !u.isPremium).length,
         };
+    }, [users]);
+
+    useEffect(() => {
+        users && console.log(users)
     }, [users]);
 
     return (

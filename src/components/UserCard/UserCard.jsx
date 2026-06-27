@@ -52,10 +52,10 @@ const UserCard = ({ user }) => {
             <span>{user.email}</span>
           </div>
           <div className="user-plan">
-            Plan: {user.subscription || "None"}
+            Plan: { user.subscription && user.subscription.plan || "None" }
           </div>
           <div className="user-sub-date">
-            {user.subDate ? formatDate(user.subDate) : "Never subscribed"}
+            {(user.subscription && user.subscription.subDate) ? formatDate(user.subscription.subDate) : "Never subscribed"}
           </div>
         </div>
       </div>
