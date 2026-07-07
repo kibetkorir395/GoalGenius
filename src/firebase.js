@@ -17,13 +17,17 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-export const signInUser = async (email, password, setNotification, navigate, from) => {
-  signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+export const signInUser = async (email, password, setNotification, navigate, from, refreshUser) => {
+  signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
     setNotification({
       isVisible: true,
       type: 'success',
       message: "Welcome Back!",
     });
+
+    if (refreshUser) {
+      await refreshUser(userCredential.user.email);
+    }  
     navigate(from); // Add redirect
   }).catch(async (error) => {
     const errorMessage = await error.message;
@@ -58,6 +62,10 @@ export const registerUser = async (username, email, password, setNotification, n
         type: 'success',
         message: `User with ${user.email} has been registered successfully`,
       });
+      
+      if (refreshUser) {
+        await refreshUser(user.email);
+      }
       navigate('/login'); // Add redirect here
     }).catch(async (error) => {
       const errorMessage = await error.message;

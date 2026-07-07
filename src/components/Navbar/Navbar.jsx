@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Logo from '../../assets/logo.png';
 import './Navbar.scss';
 import { IoClose, IoMenu } from "react-icons/io5";
+import { IoSunnyOutline, IoMoonOutline } from "react-icons/io5";
 import { NavLink, useLocation } from "react-router-dom";
 import { useRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms';
@@ -15,6 +16,13 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useRecoilState(userState);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    // Check localStorage first
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved;
+    // Check system preference
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const location = useLocation();
 
   const handleLogout = useCallback(() => {
@@ -24,6 +32,30 @@ const Navbar = () => {
 
   const handleToggle = useCallback(() => {
     setOpened(prev => !prev);
+  }, []);
+
+  const handleThemeToggle = useCallback(() => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  }, []);
+
+  // Apply theme to document root
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      // Only update if user hasn't manually set a preference
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   useEffect(() => {
@@ -81,9 +113,19 @@ const Navbar = () => {
           </div>
         </nav>
 
-        <button className="menu-toggle" onClick={handleToggle} aria-label="Toggle menu">
-          {opened ? <IoClose /> : <IoMenu />}
-        </button>
+        <div className="navbar-actions">
+          <button 
+            className="theme-toggle" 
+            onClick={handleThemeToggle} 
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            {theme === 'dark' ? <IoSunnyOutline /> : <IoMoonOutline />}
+          </button>
+          
+          <button className="menu-toggle" onClick={handleToggle} aria-label="Toggle menu">
+            {opened ? <IoClose /> : <IoMenu />}
+          </button>
+        </div>
       </div>
     </header>
   );

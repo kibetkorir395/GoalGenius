@@ -7,17 +7,22 @@
 }
 
 .tips-header {
-  margin-bottom: 24px;
+  /*margin-bottom: 24px;*/
+  
+
+  display: none;
 }
 
 .date-picker {
   position: relative;
   width: 100%;
-  margin-bottom: 20px;
+  /*margin-bottom: 20px;*/
   background: var(--bg-elevated);
   border-radius: var(--radius-md);
-  padding: 4px;
+  /*padding: 4px;*/
   border: 1px solid var(--border);
+
+  margin-bottom: 8px;
 
   .date-arrow {
     position: absolute;
@@ -76,7 +81,7 @@
     .date-tab {
       flex-shrink: 0;
       min-width: 64px;
-      padding: 10px 16px;
+      /*padding: 10px 16px;*/
       border-radius: var(--radius-sm);
       cursor: pointer;
       display: flex;
@@ -150,10 +155,13 @@
 
 .game-filter {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  /*gap: 8px;
+  margin-bottom: 16px;*/
   flex-wrap: wrap;
   justify-content: center;
+
+  gap: 4px;
+  margin-bottom: 8px;
 
   .filter-chip {
     display: flex;
@@ -196,13 +204,18 @@
 .tips-cta {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  /*margin-bottom: 24px;*/
+
+  margin-bottom: 8px;
 
   .btn {
-    padding: 10px 28px;
+    /*padding: 10px 28px;*/
     font-size: 14px;
-    gap: 8px;
+    /*gap: 8px;*/
     animation: pulse-ring 2s infinite;
+
+    padding: 5px 28px;
+    gap: 4px;
 
     .diamond {
       font-size: 16px;
@@ -213,7 +226,8 @@
 .tips-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  /*gap: 20px;*/
+  gap: 8px;
 
   .time-group {
     animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -222,11 +236,14 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      margin-bottom: 8px;
+      /*padding: 12px 16px;
+      margin-bottom: 8px;*/
       background: var(--bg-elevated);
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
+
+      padding: 4px 8px;
+      margin-bottom: 4px;
 
       .time-icon {
         font-size: 20px;
@@ -296,20 +313,26 @@
 
 @media (max-width: 768px) {
   .tips-section {
-    padding: 16px 12px;
+    /*padding: 16px 12px;*/
+
+    padding: 8px 12px;
   }
 
   .game-filter {
     .filter-chip {
-      padding: 6px 12px;
+      /*padding: 6px 12px;*/
       font-size: 12px;
+
+      padding: 4px 12px;
     }
   }
 
   .date-picker {
     .date-tab {
       min-width: 56px;
-      padding: 8px 10px;
+      /*padding: 8px 10px;*/
+
+      padding: 4px 8px;
     }
   }
 }

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import './Auth.scss'
-import { registerUser } from '../../firebase';
+import { getUser, registerUser } from '../../firebase';
 import AppHelmet from '../AppHelmet';
 import ScrollToTop from '../ScrollToTop';
-import { useSetRecoilState } from 'recoil';
-import { notificationState } from '../../recoil/atoms';
+import { notificationState, userState } from '../../recoil/atoms';
+import { useSetRecoilState , useRecoilState } from 'recoil';
 import { FiUserPlus, FiMail, FiLock, FiUser } from 'react-icons/fi';
 
 export const Register = () => {
@@ -19,7 +19,11 @@ export const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (email && password) {
-      registerUser(username, email, password, setNotification, navigate); // Pass navigate
+      const refreshUser = async (email) => {
+        await getUser(email, setUser);
+        navigate('/subscribe')
+      };
+      registerUser(username, email, password, setNotification, navigate, refreshUser); // Pass navigate
     } else {
       setNotification({
         isVisible: true,

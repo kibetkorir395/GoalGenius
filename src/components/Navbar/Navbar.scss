@@ -98,15 +98,70 @@
     }
   }
 
-  .menu-toggle {
-    display: none;
+  .navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     z-index: 102;
+  }
+
+  .theme-toggle {
     width: 40px;
     height: 40px;
     border: none;
     border-radius: 50%;
     background: var(--bg-glass);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border);
+    position: relative;
+
+    &:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    /* Dark mode glow effect */
+    [data-theme="dark"] & {
+      border-color: var(--border);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.05);
+
+      &:hover {
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);
+        background: var(--accent-light);
+      }
+    }
+
+    svg {
+      transition: transform 0.5s ease;
+    }
+
+    &:hover svg {
+      transform: rotate(90deg);
+    }
+  }
+
+  .menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -182,6 +237,44 @@
 
     .menu-toggle {
       display: flex;
+    }
+
+    .navbar-actions {
+      gap: 6px;
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+  }
+}
+
+/* Optional: Add tooltip for theme toggle on desktop */
+@media (min-width: 769px) {
+  .navbar {
+    .theme-toggle {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%) scale(0.8);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      &:hover::after {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+      }
     }
   }
 }
