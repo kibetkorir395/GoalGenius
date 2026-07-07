@@ -39,7 +39,7 @@ export const signInUser = async (email, password, setNotification, navigate, fro
   });
 }
 
-export const registerUser = async (username, email, password, setNotification, navigate) => {
+export const registerUser = async (username, email, password, setNotification, navigate, refreshUser) => {
   createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
     const user = userCredential.user;
     const userDocRef = doc(db, "users", user.email);

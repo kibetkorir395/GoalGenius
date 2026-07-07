@@ -2,13 +2,14 @@ import { MdArrowBackIos, MdArrowForwardIos } from 'react-icons/md';
 import TipCard from '../TipCard/TipCard';
 import './Tips.scss';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import AppHelmet from '../../pages/AppHelmet';
 import ScrollToTop from '../../pages/ScrollToTop';
 import { useRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms';
 import Loader from '../Loader/Loader';
 import { getTips } from '../../firebase';
+import { pricings } from '../../data';
 
 const TIME_SLOTS = {
   'Morning': { label: 'Morning', sub: '12AM - 6AM', icon: '🌙' },
@@ -43,6 +44,7 @@ export default function Tips() {
   const hasDragged = useRef(false);
   const startX = useRef(0);
   const startScroll = useRef(0);
+  const location = useLocation();
 
   const formatDate = useCallback((dateString) => {
     const date = new Date(dateString);
@@ -224,7 +226,10 @@ export default function Tips() {
       </div>
 
       <div className='tips-cta'>
-        <NavLink to='/subscribe' className='btn'>
+        <NavLink 
+          to='/subscribe' 
+          className='btn'
+          state={{ from: location, subscription: pricings[1] }}>
           <span className='diamond'>💎</span>
           Unlock VIP Tips
         </NavLink>

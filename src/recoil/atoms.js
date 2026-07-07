@@ -36,6 +36,6 @@ export const notificationState = atom({
 
 export const subscriptionState = atom({
   key: 'subscriptionState',
-  default: pricings[0],
+  default: pricings[1],
   effects_UNSTABLE: [persistAtom], // Enable persistence
 });

@@ -12,8 +12,8 @@ export default function Home() {
       <ScrollToTop />
       <AppHelmet title={""} />
       <Tips />
-      <Featured />
       <Pricing />
+      <Featured />
       <Flyer />
     </div>
   )

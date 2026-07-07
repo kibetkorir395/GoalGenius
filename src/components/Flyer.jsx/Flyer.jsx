@@ -13,7 +13,7 @@ export default function Flyer() {
         <NavLink
           to="/subscribe"
           className="btn"
-          state={{ from: location, subscription: pricings[0] }}
+          state={{ from: location, subscription: pricings[1] }}
         >
           Get VIP Access <FiArrowRight />
         </NavLink>

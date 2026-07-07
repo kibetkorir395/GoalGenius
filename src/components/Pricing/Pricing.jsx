@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { FiCheck, FiChevronRight } from 'react-icons/fi';
 
 export default function Pricing() {
-  const [billing, setBilling] = useState('Day');
+  const [billing, setBilling] = useState('Week');
   const location = useLocation();
 
   const plans = pricings.filter(p => p.billing === billing);
