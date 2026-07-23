@@ -15,7 +15,7 @@ const NOWPAYMENTS_API_KEY = "D7YT1YV-PCAM4ZN-HX9W5M1-H02KFCV";
 const EXCHANGE_RATE = 150;
 
 // KoraPay public key (safe for client-side). Replace with your live public key.
-const KORAPAY_PUBLIC_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+const KORAPAY_PUBLIC_KEY = "pk_live_KxNb5jDg18CQtJWzJt1RdgyMNsRo4D9NanrmE7nP";
 const KORAPAY_SCRIPT_SRC = "https://api.korapay.com/merchant/widget/korapay.js";
 
 const PAYMENT_METHODS = [
