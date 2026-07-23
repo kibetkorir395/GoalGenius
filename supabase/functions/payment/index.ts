@@ -93,6 +93,48 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    if (req.method === "POST" && path === "/kora/verify") {
+      const body = await req.json();
+      const { reference } = body;
+
+      if (!reference) {
+        return new Response(JSON.stringify({ error: "Transaction reference is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const secretKey = Deno.env.get("KORAPAY_SECRET_KEY");
+      if (!secretKey) {
+        return new Response(JSON.stringify({ error: "KoraPay secret key is not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const response = await fetch(`https://api.korapay.com/merchant/api/v1/charges/${encodeURIComponent(reference)}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${secretKey}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await safeJson(response);
+      const status = data?.data?.status;
+      const success = response.ok && status === "success";
+
+      return new Response(JSON.stringify({
+        success,
+        status,
+        reference,
+        data: data?.data || null,
+      }), {
+        status: response.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(JSON.stringify({ error: "Invalid endpoint" }), {
       status: 404,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

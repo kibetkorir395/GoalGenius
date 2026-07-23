@@ -73,6 +73,21 @@ export const PaymentService = {
     return () => clearInterval(interval);
   },
 
+  async verifyKora(reference) {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/payment/kora/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${ANON_KEY}`,
+        'apikey': ANON_KEY,
+      },
+      body: JSON.stringify({ reference }),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) throw new Error(data.error || data.message || `Verification failed: ${response.status}`);
+    return data;
+  },
+
   async initiateCard(amount, currency, email, fullname, card_number, cvv, expiry_month, expiry_year, pin) {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/payment/initiate/card`, {
       method: 'POST',

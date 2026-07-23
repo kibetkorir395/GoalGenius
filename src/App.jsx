@@ -22,7 +22,7 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import ProtectedAuthRoute from './utils/ProtectedAuthRoute';
 import ProtectedAdminRoute from './utils/ProtectedAdminRoute';
 import { checkSubscriptionStatus } from './utils/subscription';
-import Subscription from './pages/Pay/Subscription';
+import Payment from './pages/Pay/Payment';
 import Notification from './components/Notification/Notification';
 
 function App() {
@@ -68,7 +68,7 @@ function App() {
       <Notification />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+        <Route path="subscribe" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
         <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
