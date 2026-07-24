@@ -5,7 +5,7 @@ import { getUser, registerUser } from '../../firebase';
 import AppHelmet from '../AppHelmet';
 import ScrollToTop from '../ScrollToTop';
 import { notificationState, userState } from '../../recoil/atoms';
-import { useSetRecoilState , useRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilState } from 'recoil';
 import { FiUserPlus, FiMail, FiLock, FiUser } from 'react-icons/fi';
 
 export const Register = () => {
@@ -14,23 +14,26 @@ export const Register = () => {
   const [password, setPassword] = useState('');
   const [processing, setProcessing] = useState(false);
   const setNotification = useSetRecoilState(notificationState);
+  const [user, setUser] = useRecoilState(userState); // Add this line to get setUser
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (email && password) {
+      setProcessing(true);
       const refreshUser = async (email) => {
         await getUser(email, setUser);
-        navigate('/subscribe')
+        navigate('/subscribe');
       };
-      registerUser(username, email, password, setNotification, navigate, refreshUser); // Pass navigate
+      await registerUser(username, email, password, setNotification, navigate, refreshUser);
+      setProcessing(false);
     } else {
       setNotification({
         isVisible: true,
         type: 'warning',
-        message: "You have entered an invalid email address!",
+        message: "Please fill in all fields!",
       });
-    };
+    }
   }
 
   return (
