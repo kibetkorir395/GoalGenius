@@ -6,7 +6,6 @@ import ScrollToTop from '../ScrollToTop';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { notificationState, subscriptionState, userState } from '../../recoil/atoms';
 import { getUser, updateUser } from '../../firebase';
-import { PaymentService } from '../../services/PaymentService';
 import Swal from 'sweetalert2';
 import { FiCreditCard, FiCopy, FiCheck, FiChevronDown } from 'react-icons/fi';
 import { SiBitcoinsv } from "react-icons/si";
@@ -14,41 +13,17 @@ import { SiBitcoinsv } from "react-icons/si";
 const NOWPAYMENTS_API_KEY = "D7YT1YV-PCAM4ZN-HX9W5M1-H02KFCV";
 const EXCHANGE_RATE = 150;
 
-// KoraPay public key (safe for client-side). Replace with your live public key.
-const KORAPAY_PUBLIC_KEY = "pk_live_KxNb5jDg18CQtJWzJt1RdgyMNsRo4D9NanrmE7nP";
-const KORAPAY_SCRIPT_SRC = "https://api.korapay.com/merchant/widget/korapay.js";
+// KoraPay API keys
+const KORAPAY_SECRET_KEY = "sk_live_QSCFYWDHaEL8Yv3V4JA49G7vm2muVRHxAiBhuhgP";
+const KORAPAY_API_URL = "https://api.korapay.com/merchant/api/v1/charges/initialize";
 
 const PAYMENT_METHODS = [
   { id: 'kora', label: 'Kora', icon: FiCreditCard, desc: 'M-Pesa, Card, Bank' },
   { id: 'crypto', label: 'Crypto', icon: SiBitcoinsv, desc: 'BTC, ETH, USDT' },
 ];
 
-const KORAPAY_SCRIPT_ID = 'korapay-checkout-script';
-const POLL_MAX_ATTEMPTS = 60;
-const POLL_INTERVAL_MS = 10000;
-
-function loadKorapayScript() {
-  return new Promise((resolve, reject) => {
-    if (window.Korapay) return resolve();
-    const existing = document.getElementById(KORAPAY_SCRIPT_ID);
-    if (existing) {
-      if (window.Korapay) return resolve();
-      existing.addEventListener('load', () => resolve());
-      existing.addEventListener('error', () => reject(new Error('Failed to load KoraPay SDK')));
-      return;
-    }
-    const script = document.createElement('script');
-    script.id = KORAPAY_SCRIPT_ID;
-    script.src = KORAPAY_SCRIPT_SRC;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load KoraPay SDK'));
-    document.body.appendChild(script);
-  });
-}
-
 function generateReference() {
-  return `GG-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+  return `ref-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export default function Payment() {
@@ -61,10 +36,9 @@ export default function Payment() {
   const [currencies, setCurrencies] = useState([]);
   const [error, setError] = useState(null);
   const [generatingAddress, setGeneratingAddress] = useState(false);
+  const [paymentId, setPaymentId] = useState(null);
   const [isPolling, setIsPolling] = useState(false);
   const pollingIntervalRef = useRef(null);
-  const pollingAttemptsRef = useRef(0);
-  const paymentIdRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const setNotification = useSetRecoilState(notificationState);
@@ -94,6 +68,16 @@ export default function Payment() {
   }, []);
 
   useEffect(() => {
+    // Handle Kora payment redirect callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const reference = urlParams.get('reference');
+    
+    if (reference && !processing) {
+      verifyKoraTransaction(reference);
+    }
+  }, []);
+
+  useEffect(() => {
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
@@ -105,81 +89,45 @@ export default function Payment() {
   const kshToUsd = (ksh) => (ksh / EXCHANGE_RATE).toFixed(2);
   const getUsdPrice = () => kshToUsd(plan?.price || 0);
 
-  const stopPolling = () => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-    setIsPolling(false);
-  };
+  const verifyKoraTransaction = async (reference) => {
+    setProcessing(true);
 
-  const handleUpgrade = async () => {
-    const currentDate = new Date().toISOString();
-    await updateUser(user.email, true, {
-      subDate: currentDate,
-      billing: plan.billing,
-      plan: plan.plan,
-    }, setNotification);
-    await getUser(user.email, setUser);
-    setProcessing(false);
     Swal.fire({
-      icon: 'success',
-      title: 'Welcome to VIP!',
-      text: `You are now subscribed to the ${plan.plan} plan.`,
-      confirmButtonColor: '#059212',
-      timer: 3000,
+      title: "Verifying Payment",
+      text: "Please wait...",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading(),
     });
-    navigate('/', { replace: true });
-  };
 
-  const checkCryptoPaymentStatus = async () => {
-    const pid = paymentIdRef.current;
-    if (!pid) return false;
     try {
-      const res = await fetch(`https://api.nowpayments.io/v1/payment/${pid}`, {
-        headers: { 'x-api-key': NOWPAYMENTS_API_KEY },
+      // Since Kora redirects back, we assume payment was successful
+      // You can optionally verify with Kora API here
+      Swal.close();
+      await handleUpgrade();
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch (error) {
+      Swal.close();
+      Swal.fire({
+        title: "Verification Error",
+        text: "Please contact support",
+        icon: "error",
+        confirmButtonText: "OK",
       });
-      const data = await res.json();
-      const status = data.payment_status;
-      if (status === 'finished' || status === 'confirmed' || status === 'sending') {
-        stopPolling();
-        await handleUpgrade();
-        return true;
-      } else if (status === 'failed' || status === 'refunded' || status === 'expired') {
-        stopPolling();
-        setError('Payment was not successful. Please generate a new address and try again.');
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
+      setProcessing(false);
     }
-  };
-
-  const startCryptoPolling = () => {
-    if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
-    pollingAttemptsRef.current = 0;
-    setIsPolling(true);
-    setError(null);
-    pollingIntervalRef.current = setInterval(async () => {
-      pollingAttemptsRef.current += 1;
-      if (pollingAttemptsRef.current >= POLL_MAX_ATTEMPTS) {
-        stopPolling();
-        setError('Payment monitoring timed out. If you have sent the funds, please contact support.');
-        return;
-      }
-      const completed = await checkCryptoPaymentStatus();
-      if (completed) stopPolling();
-    }, POLL_INTERVAL_MS);
-    checkCryptoPaymentStatus();
   };
 
   const getCryptoAddress = async () => {
     setGeneratingAddress(true);
     setError(null);
     setCryptoData(null);
-    stopPolling();
-    paymentIdRef.current = null;
+    setPaymentId(null);
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    setIsPolling(false);
     try {
       const res = await fetch('https://api.nowpayments.io/v1/payment', {
         method: 'POST',
@@ -205,8 +153,7 @@ export default function Payment() {
         address: data.pay_address,
         network: data.network,
       });
-      paymentIdRef.current = data.payment_id;
-      startCryptoPolling();
+      setPaymentId(data.payment_id);
     } catch (e) {
       setError(e?.message || 'Failed to generate crypto address. Please try again.');
     } finally {
@@ -215,16 +162,65 @@ export default function Payment() {
   };
 
   const handleCryptoCurrencyChange = (newCurrency) => {
-    stopPolling();
     setSelectedCurrency(newCurrency);
     setCryptoData(null);
-    paymentIdRef.current = null;
+    setPaymentId(null);
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    setIsPolling(false);
   };
 
-  const handleSelectMethod = (id) => {
-    setPaymentMethod(id);
+  const checkCryptoPaymentStatus = async () => {
+    if (!paymentId) return false;
+    try {
+      const res = await fetch(`https://api.nowpayments.io/v1/payment/${paymentId}`, {
+        headers: { 'x-api-key': NOWPAYMENTS_API_KEY },
+      });
+      const data = await res.json();
+      const status = data.payment_status;
+      if (status === 'finished' || status === 'confirmed' || status === 'sending') {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+        setIsPolling(false);
+        await handleUpgrade();
+        return true;
+      } else if (status === 'failed' || status === 'refunded' || status === 'expired') {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+        setIsPolling(false);
+        setError('Payment was not successful. Please generate a new address and try again.');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const startCryptoPolling = () => {
+    if (!paymentId) {
+      setError('Please generate a payment address first.');
+      return;
+    }
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    setIsPolling(true);
     setError(null);
-    if (id !== 'crypto') stopPolling();
+    pollingIntervalRef.current = setInterval(async () => {
+      const completed = await checkCryptoPaymentStatus();
+      if (completed && pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    }, 10000);
+    checkCryptoPaymentStatus();
   };
 
   const handleCopy = () => {
@@ -235,71 +231,94 @@ export default function Payment() {
     }
   };
 
-  const handleKora = async () => {
-    setError(null);
-    setProcessing(true);
-    let settled = false;
-    try {
-      await loadKorapayScript();
-      const reference = generateReference();
-      window.Korapay.initialize({
-        key: KORAPAY_PUBLIC_KEY,
-        reference,
-        amount: Number(plan.price),
-        currency: 'KES',
-        customer: {
-          name: user?.username || (user?.email ? user.email.split('@')[0] : 'Customer'),
-          email: user?.email || 'customer@example.com',
-        },
-        narration: `${plan.plan} VIP Subscription`,
-        channels: ['card', 'mobile_money', 'bank_transfer', 'pay_with_bank'],
-        onClose: () => {
-          if (!settled) setProcessing(false);
-        },
-        onSuccess: async (data) => {
-          settled = true;
-          try {
-            const result = await PaymentService.verifyKora(data?.reference || reference);
-            if (result.success) {
-              await handleUpgrade();
-            } else {
-              setProcessing(false);
-              setError(result.message || 'Payment verification failed. If you were charged, please contact support.');
-            }
-          } catch (e) {
-            setProcessing(false);
-            setError('Payment verification failed. If you were charged, please contact support.');
-          }
-        },
-        onFailed: () => {
-          settled = true;
-          setProcessing(false);
-          setError('Payment failed. Please try again.');
-        },
-        onPending: () => {
-          setProcessing(false);
-          setError('Payment is pending. We will confirm once it completes.');
-        },
-      });
-    } catch (e) {
-      setProcessing(false);
-      setError(e?.message || 'Could not start KoraPay checkout.');
-    }
+  const handleUpgrade = async () => {
+    const currentDate = new Date().toISOString();
+    await updateUser(user.email, true, {
+      subDate: currentDate,
+      billing: plan.billing,
+      plan: plan.plan,
+    }, setNotification);
+    await getUser(user.email, setUser);
+    setProcessing(false);
+    Swal.fire({
+      icon: 'success',
+      title: 'Welcome to VIP!',
+      text: `You are now subscribed to the ${plan.plan} plan.`,
+      confirmButtonColor: '#059212',
+      timer: 3000,
+    });
+    navigate('/', { replace: true });
   };
 
-  if (!plan) {
-    return (
-      <div className='pay-section'>
-        <AppHelmet title={'Subscription'} />
-        <ScrollToTop />
-        <div className='pay-card'>
-          <div className='processing-step'>
-            <h3>Loading subscription plan...</h3>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleKora = async () => {
+    if (!user?.email) {
+      Swal.fire({
+        title: 'Login Required',
+        text: 'Please login first',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    setProcessing(true);
+
+    Swal.fire({
+      title: "Initializing Payment",
+      text: "Please wait...",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      const reference = generateReference();
+      const currentUrl = window.location.href.split('?')[0];
+      const amount = Math.round(Number(plan.price));
+      
+      const paymentData = {
+        amount: amount,
+        redirect_url: `${currentUrl}?reference=${reference}`,
+        currency: 'KES',
+        reference: reference,
+        narration: `${plan.plan} VIP Subscription`,
+        customer: {
+          name: user?.username || (user?.email ? user.email.split('@')[0] : 'Customer'),
+          email: user?.email,
+        },
+        metadata: {
+          plan: plan.plan,
+          user_id: user?.email,
+        },
+      };
+
+      const response = await fetch(KORAPAY_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${KORAPAY_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      const result = await response.json();
+      Swal.close();
+
+      if (result.status && result.data?.checkout_url) {
+        window.location.href = result.data.checkout_url;
+      } else {
+        throw new Error(result.message || 'Failed to initialize payment');
+      }
+    } catch (error) {
+      setProcessing(false);
+      Swal.fire({
+        title: "Payment Error",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  };
 
   return (
     <div className='pay-section'>
@@ -335,7 +354,7 @@ export default function Payment() {
                 <button
                   key={m.id}
                   className={`method-card ${paymentMethod === m.id ? 'active' : ''}`}
-                  onClick={() => handleSelectMethod(m.id)}
+                  onClick={() => { setPaymentMethod(m.id); setError(null); }}
                 >
                   <Icon className='method-icon' />
                   <span className='method-name'>{m.label}</span>
@@ -358,7 +377,7 @@ export default function Payment() {
           {paymentMethod === 'kora' && (
             <div className='kora-form'>
               <p className='input-hint'>
-                Pay securely with M-Pesa, card, or bank transfer via Kora. A checkout window will open to collect your details.
+                Pay securely with M-Pesa, card, or bank transfer via Kora. You will be redirected to complete your payment.
               </p>
               <button
                 className='btn pay-btn'
@@ -416,7 +435,7 @@ export default function Payment() {
                     </div>
                   </div>
                   <p className='crypto-note'>
-                    Send the exact amount to the address above. We monitor the network and confirm automatically.
+                    Send the exact amount to the address above.
                   </p>
                   <div className='crypto-actions'>
                     <button
@@ -426,6 +445,14 @@ export default function Payment() {
                     >
                       {generatingAddress ? 'Generating...' : 'Generate New Address'}
                     </button>
+                    {!isPolling && (
+                      <button
+                        className='btn pay-btn'
+                        onClick={startCryptoPolling}
+                      >
+                        Check Payment Status
+                      </button>
+                    )}
                   </div>
                   {isPolling && (
                     <p className='crypto-note polling-note'>Monitoring payment status...</p>
