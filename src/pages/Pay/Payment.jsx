@@ -24,6 +24,8 @@ const PAYMENT_METHODS = [
 ];
 
 const KORAPAY_SCRIPT_ID = 'korapay-checkout-script';
+const POLL_MAX_ATTEMPTS = 60;
+const POLL_INTERVAL_MS = 10000;
 
 function loadKorapayScript() {
   return new Promise((resolve, reject) => {
@@ -59,9 +61,10 @@ export default function Payment() {
   const [currencies, setCurrencies] = useState([]);
   const [error, setError] = useState(null);
   const [generatingAddress, setGeneratingAddress] = useState(false);
-  const [paymentId, setPaymentId] = useState(null);
   const [isPolling, setIsPolling] = useState(false);
   const pollingIntervalRef = useRef(null);
+  const pollingAttemptsRef = useRef(0);
+  const paymentIdRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const setNotification = useSetRecoilState(notificationState);
@@ -102,16 +105,81 @@ export default function Payment() {
   const kshToUsd = (ksh) => (ksh / EXCHANGE_RATE).toFixed(2);
   const getUsdPrice = () => kshToUsd(plan?.price || 0);
 
-  const getCryptoAddress = async () => {
-    setGeneratingAddress(true);
-    setError(null);
-    setCryptoData(null);
-    setPaymentId(null);
+  const stopPolling = () => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
     }
     setIsPolling(false);
+  };
+
+  const handleUpgrade = async () => {
+    const currentDate = new Date().toISOString();
+    await updateUser(user.email, true, {
+      subDate: currentDate,
+      billing: plan.billing,
+      plan: plan.plan,
+    }, setNotification);
+    await getUser(user.email, setUser);
+    setProcessing(false);
+    Swal.fire({
+      icon: 'success',
+      title: 'Welcome to VIP!',
+      text: `You are now subscribed to the ${plan.plan} plan.`,
+      confirmButtonColor: '#059212',
+      timer: 3000,
+    });
+    navigate('/', { replace: true });
+  };
+
+  const checkCryptoPaymentStatus = async () => {
+    const pid = paymentIdRef.current;
+    if (!pid) return false;
+    try {
+      const res = await fetch(`https://api.nowpayments.io/v1/payment/${pid}`, {
+        headers: { 'x-api-key': NOWPAYMENTS_API_KEY },
+      });
+      const data = await res.json();
+      const status = data.payment_status;
+      if (status === 'finished' || status === 'confirmed' || status === 'sending') {
+        stopPolling();
+        await handleUpgrade();
+        return true;
+      } else if (status === 'failed' || status === 'refunded' || status === 'expired') {
+        stopPolling();
+        setError('Payment was not successful. Please generate a new address and try again.');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const startCryptoPolling = () => {
+    if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+    pollingAttemptsRef.current = 0;
+    setIsPolling(true);
+    setError(null);
+    pollingIntervalRef.current = setInterval(async () => {
+      pollingAttemptsRef.current += 1;
+      if (pollingAttemptsRef.current >= POLL_MAX_ATTEMPTS) {
+        stopPolling();
+        setError('Payment monitoring timed out. If you have sent the funds, please contact support.');
+        return;
+      }
+      const completed = await checkCryptoPaymentStatus();
+      if (completed) stopPolling();
+    }, POLL_INTERVAL_MS);
+    checkCryptoPaymentStatus();
+  };
+
+  const getCryptoAddress = async () => {
+    setGeneratingAddress(true);
+    setError(null);
+    setCryptoData(null);
+    stopPolling();
+    paymentIdRef.current = null;
     try {
       const res = await fetch('https://api.nowpayments.io/v1/payment', {
         method: 'POST',
@@ -137,7 +205,8 @@ export default function Payment() {
         address: data.pay_address,
         network: data.network,
       });
-      setPaymentId(data.payment_id);
+      paymentIdRef.current = data.payment_id;
+      startCryptoPolling();
     } catch (e) {
       setError(e?.message || 'Failed to generate crypto address. Please try again.');
     } finally {
@@ -146,65 +215,16 @@ export default function Payment() {
   };
 
   const handleCryptoCurrencyChange = (newCurrency) => {
+    stopPolling();
     setSelectedCurrency(newCurrency);
     setCryptoData(null);
-    setPaymentId(null);
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-    setIsPolling(false);
+    paymentIdRef.current = null;
   };
 
-  const checkCryptoPaymentStatus = async () => {
-    if (!paymentId) return false;
-    try {
-      const res = await fetch(`https://api.nowpayments.io/v1/payment/${paymentId}`, {
-        headers: { 'x-api-key': NOWPAYMENTS_API_KEY },
-      });
-      const data = await res.json();
-      const status = data.payment_status;
-      if (status === 'finished' || status === 'confirmed' || status === 'sending') {
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current);
-          pollingIntervalRef.current = null;
-        }
-        setIsPolling(false);
-        await handleUpgrade();
-        return true;
-      } else if (status === 'failed' || status === 'refunded' || status === 'expired') {
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current);
-          pollingIntervalRef.current = null;
-        }
-        setIsPolling(false);
-        setError('Payment was not successful. Please generate a new address and try again.');
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const startCryptoPolling = () => {
-    if (!paymentId) {
-      setError('Please generate a payment address first.');
-      return;
-    }
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-    }
-    setIsPolling(true);
+  const handleSelectMethod = (id) => {
+    setPaymentMethod(id);
     setError(null);
-    pollingIntervalRef.current = setInterval(async () => {
-      const completed = await checkCryptoPaymentStatus();
-      if (completed && pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-    }, 10000);
-    checkCryptoPaymentStatus();
+    if (id !== 'crypto') stopPolling();
   };
 
   const handleCopy = () => {
@@ -213,25 +233,6 @@ export default function Payment() {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }
-  };
-
-  const handleUpgrade = async () => {
-    const currentDate = new Date().toISOString();
-    await updateUser(user.email, true, {
-      subDate: currentDate,
-      billing: plan.billing,
-      plan: plan.plan,
-    }, setNotification);
-    await getUser(user.email, setUser);
-    setProcessing(false);
-    Swal.fire({
-      icon: 'success',
-      title: 'Welcome to VIP!',
-      text: `You are now subscribed to the ${plan.plan} plan.`,
-      confirmButtonColor: '#059212',
-      timer: 3000,
-    });
-    navigate('/', { replace: true });
   };
 
   const handleKora = async () => {
@@ -286,6 +287,20 @@ export default function Payment() {
     }
   };
 
+  if (!plan) {
+    return (
+      <div className='pay-section'>
+        <AppHelmet title={'Subscription'} />
+        <ScrollToTop />
+        <div className='pay-card'>
+          <div className='processing-step'>
+            <h3>Loading subscription plan...</h3>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='pay-section'>
       <AppHelmet title={'Subscription'} />
@@ -320,7 +335,7 @@ export default function Payment() {
                 <button
                   key={m.id}
                   className={`method-card ${paymentMethod === m.id ? 'active' : ''}`}
-                  onClick={() => { setPaymentMethod(m.id); setError(null); }}
+                  onClick={() => handleSelectMethod(m.id)}
                 >
                   <Icon className='method-icon' />
                   <span className='method-name'>{m.label}</span>
@@ -401,7 +416,7 @@ export default function Payment() {
                     </div>
                   </div>
                   <p className='crypto-note'>
-                    Send the exact amount to the address above.
+                    Send the exact amount to the address above. We monitor the network and confirm automatically.
                   </p>
                   <div className='crypto-actions'>
                     <button
@@ -411,14 +426,6 @@ export default function Payment() {
                     >
                       {generatingAddress ? 'Generating...' : 'Generate New Address'}
                     </button>
-                    {!isPolling && (
-                      <button
-                        className='btn pay-btn'
-                        onClick={startCryptoPolling}
-                      >
-                        Check Payment Status
-                      </button>
-                    )}
                   </div>
                   {isPolling && (
                     <p className='crypto-note polling-note'>Monitoring payment status...</p>
