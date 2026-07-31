@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const API_BASE = "https://powerful-flexibility-production-989e.up.railway.app";
+const API_BASE = "https://flutter-payment-production.up.railway.app";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
