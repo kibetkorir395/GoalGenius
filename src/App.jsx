@@ -25,6 +25,7 @@ import { checkSubscriptionStatus } from './utils/subscription';
 import Payment from './pages/Pay/Payment';
 import Subscription from './pages/Pay/Subscription';
 import Pay from './pages/Pay/Pay';
+import FlutterwavePayment from './pages/FlutterwavePayment/FlutterwavePayment';
 import Notification from './components/Notification/Notification';
 import { useCurrency } from './context/CurrencyContext';
 
@@ -72,7 +73,7 @@ function App() {
       <Notification />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="subscribe" element={<ProtectedRoute>{currency === "KES" ? <Pay /> : <Payment /> }</ProtectedRoute>} />
+        <Route path="subscribe" element={<ProtectedRoute>{currency === "KES" ? <Pay /> : <FlutterwavePayment /> }</ProtectedRoute>} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
         <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
