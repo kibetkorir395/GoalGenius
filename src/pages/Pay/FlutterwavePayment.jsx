@@ -89,8 +89,8 @@ export default function FlutterwavePayment() {
   // Flutterwave Payment Configuration
   const getFlutterwaveConfig = () => {
     // Determine currency - use NGN for Nigeria, KES for Kenya, etc.
-    const amount = Math.round(Number(plan?.price || 0));
-    
+    const amount = Math.round(Number(convertPrice(plan?.price) || 0));
+
     return {
       public_key: FLUTTERWAVE_PUBLIC_KEY,
       tx_ref: generateReference(),
@@ -298,7 +298,7 @@ export default function FlutterwavePayment() {
           <h2 className='plan-title'>Upgrade to {plan?.plan} Plan</h2>
           <p className='plan-desc'>{plan?.title}</p>
           <div className='plan-price'>
-            <span className='price-amount'>{symbol} {plan?.price}</span>
+            <span className='price-amount'>{symbol} {convertPrice(plan?.price)}</span>
             <span className='price-period'>/{plan?.billing}</span>
           </div>
           <div className='plan-features'>
@@ -354,7 +354,7 @@ export default function FlutterwavePayment() {
                   <span className='spinner'>Processing...</span>
                 ) : (
                   <>
-                    <FiCreditCard /> Pay {symbol} {plan?.price}
+                    <FiCreditCard /> Pay {symbol} {convertPrice(plan?.price)}
                   </>
                 )}
               </button>
