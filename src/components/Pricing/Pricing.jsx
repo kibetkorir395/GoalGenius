@@ -3,10 +3,12 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { pricings } from '../../data';
 import { useState } from 'react';
 import { FiCheck, FiChevronRight } from 'react-icons/fi';
+import { useCurrency } from '../../context/CurrencyContext';
 
 export default function Pricing() {
   const [billing, setBilling] = useState('Week');
   const location = useLocation();
+  const { symbol, convertPrice } = useCurrency();
 
   const plans = pricings.filter(p => p.billing === billing);
 
@@ -28,7 +30,9 @@ export default function Pricing() {
       </div>
 
       <div className='pricing-cards'>
-        {plans.map((plan, idx) => (
+        {plans.map((plan, idx) => {
+          const converted = convertPrice(plan.price);
+          return (
           <div key={plan.id} className={`pricing-card ${idx === 1 ? 'popular' : ''}`} style={{ animationDelay: `${idx * 0.1}s` }}>
             {idx === 1 && <span className='popular-badge'>Best Value</span>}
             <div className='card-header'>
@@ -36,7 +40,7 @@ export default function Pricing() {
               <p className='plan-title'>{plan.title}</p>
             </div>
             <div className='card-price'>
-              <span className='price'>KSH {plan.price}</span>
+              <span className='price'>{symbol} {converted.toLocaleString()}</span>
               <span className='period'>/{plan.billing}</span>
             </div>
             <ul className='card-features'>
@@ -55,7 +59,7 @@ export default function Pricing() {
               Subscribe Now <FiChevronRight />
             </NavLink>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );

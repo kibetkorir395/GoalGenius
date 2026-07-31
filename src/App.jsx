@@ -26,12 +26,14 @@ import Payment from './pages/Pay/Payment';
 import Subscription from './pages/Pay/Subscription';
 import Pay from './pages/Pay/Pay';
 import Notification from './components/Notification/Notification';
+import { useCurrency } from './context/CurrencyContext';
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useRecoilState(userState);
   const [isScrolled, setIsScrolled] = useState(false);
   const setNotification = useSetRecoilState(notificationState);
+  const { symbol, currency, convertPrice } = useCurrency();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -70,7 +72,7 @@ function App() {
       <Notification />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="subscribe" element={<ProtectedRoute><Pay /></ProtectedRoute>} />
+        <Route path="subscribe" element={<ProtectedRoute>{currency === "KES" ? <Pay /> : <Payment /> }</ProtectedRoute>} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
         <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />

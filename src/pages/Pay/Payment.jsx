@@ -9,6 +9,8 @@ import { getUser, updateUser } from '../../firebase';
 import Swal from 'sweetalert2';
 import { FiCreditCard, FiCopy, FiCheck, FiChevronDown } from 'react-icons/fi';
 import { SiBitcoinsv } from "react-icons/si";
+import { pricings } from '../../data';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const NOWPAYMENTS_API_KEY = "D7YT1YV-PCAM4ZN-HX9W5M1-H02KFCV";
 const EXCHANGE_RATE = 150;
@@ -44,13 +46,20 @@ export default function Payment() {
   const setNotification = useSetRecoilState(notificationState);
   const [subscription, setSubscription] = useRecoilState(subscriptionState);
   const [plan, setPlan] = useState(null);
+  const { symbol, currency, convertPrice } = useCurrency();
 
   useEffect(() => {
     if (location.state?.subscription) {
-      setPlan(location.state.subscription);
+      setPlan({...location.state.subscription, 
+        price: subscription.price != null ? subscription.price : convertPrice(subscription.price),
+        currency: subscription.currency || symbol,});
       setSubscription(location.state.subscription);
     } else {
-      setPlan(subscription);
+      //setPlan(subscription);
+
+      const fallback = { ...pricings[0], price: convertPrice(pricings[0].price), currency: symbol };
+        setPlan(fallback);
+        setSubscription(fallback);
     }
   }, [location, subscription]);
 
@@ -275,11 +284,12 @@ export default function Payment() {
       const reference = generateReference();
       const currentUrl = window.location.href.split('?')[0];
       const amount = Math.round(Number(plan.price));
+      const payCurrency = (subscription != null ? subscription.currency : symbol) === '₦' ? 'NGN' : 'KES';
       
       const paymentData = {
         amount: amount,
         redirect_url: `${currentUrl}?reference=${reference}`,
-        currency: 'KES',
+        currency: payCurrency,//'KES',
         reference: reference,
         narration: `${plan.plan} VIP Subscription`,
         customer: {
