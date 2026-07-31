@@ -4,6 +4,20 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 const COUNTRIES = {
     KE: { code: 'KE', name: 'Kenya', currency: 'KES', symbol: 'KSH', rate: 1 },
     NG: { code: 'NG', name: 'Nigeria', currency: 'NGN', symbol: '₦', rate: 11.63 },
+    GH: { code: 'GH', name: 'Ghana', currency: 'GHS', symbol: 'GH₵', rate: 0.11 },
+    ZA: { code: 'ZA', name: 'South Africa', currency: 'ZAR', symbol: 'R', rate: 0.14 },
+    UG: { code: 'UG', name: 'Uganda', currency: 'UGX', symbol: 'USh', rate: 28.5 },
+    TZ: { code: 'TZ', name: 'Tanzania', currency: 'TZS', symbol: 'TSh', rate: 20.2 },
+    RW: { code: 'RW', name: 'Rwanda', currency: 'RWF', symbol: 'FRw', rate: 10.1 },
+    ZM: { code: 'ZM', name: 'Zambia', currency: 'ZMW', symbol: 'ZK', rate: 0.21 },
+    MW: { code: 'MW', name: 'Malawi', currency: 'MWK', symbol: 'MK', rate: 13.2 },
+    BF: { code: 'BF', name: 'Burkina Faso', currency: 'XOF', symbol: 'CFA', rate: 4.6 },
+    CI: { code: 'CI', name: "Côte d'Ivoire", currency: 'XOF', symbol: 'CFA', rate: 4.6 },
+    SN: { code: 'SN', name: 'Senegal', currency: 'XOF', symbol: 'CFA', rate: 4.6 },
+    CM: { code: 'CM', name: 'Cameroon', currency: 'XAF', symbol: 'FCFA', rate: 4.6 },
+    US: { code: 'US', name: 'United States', currency: 'USD', symbol: '$', rate: 0.0076 },
+    GB: { code: 'GB', name: 'United Kingdom', currency: 'GBP', symbol: '£', rate: 0.006 },
+    EU: { code: 'EU', name: 'Eurozone', currency: 'EUR', symbol: '€', rate: 0.007 }
 };
 
 const DEFAULT_COUNTRY = COUNTRIES.KE;
