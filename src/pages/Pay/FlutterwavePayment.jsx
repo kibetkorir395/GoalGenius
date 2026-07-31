@@ -17,7 +17,7 @@ const NOWPAYMENTS_API_KEY = "D7YT1YV-PCAM4ZN-HX9W5M1-H02KFCV";
 const EXCHANGE_RATE = 150;
 
 // Flutterwave Public Key - Replace with your actual public key
-const FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK-40a5224fd98f788a9f1a79d4d03b80d2-X";
+const FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK-38aac8e4c9002a02b46496e8ef4b32ab-X";
 
 const PAYMENT_METHODS = [
   { id: 'flutterwave', label: 'Flutterwave', icon: FiCreditCard, desc: 'Card, M-Pesa, Bank, USSD' },
