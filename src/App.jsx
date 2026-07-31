@@ -24,6 +24,7 @@ import ProtectedAdminRoute from './utils/ProtectedAdminRoute';
 import { checkSubscriptionStatus } from './utils/subscription';
 import Payment from './pages/Pay/Payment';
 import Subscription from './pages/Pay/Subscription';
+import Pay from './pages/Pay/Pay';
 import Notification from './components/Notification/Notification';
 
 function App() {
@@ -69,7 +70,7 @@ function App() {
       <Notification />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="subscribe" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+        <Route path="subscribe" element={<ProtectedRoute><Pay /></ProtectedRoute>} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
         <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
