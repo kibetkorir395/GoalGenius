@@ -89,14 +89,13 @@ export default function FlutterwavePayment() {
   // Flutterwave Payment Configuration
   const getFlutterwaveConfig = () => {
     // Determine currency - use NGN for Nigeria, KES for Kenya, etc.
-    const payCurrency = (subscription?.currency || symbol) === '₦' ? 'NGN' : 'KES';
     const amount = Math.round(Number(plan?.price || 0));
     
     return {
       public_key: FLUTTERWAVE_PUBLIC_KEY,
       tx_ref: generateReference(),
       amount: amount,
-      currency: payCurrency,
+      currency: subscription?.currency,
       payment_options: 'card,mobilemoney,ussd,banktransfer',
       redirect_url: window.location.href.split('?')[0],
       customer: {
