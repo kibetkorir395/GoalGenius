@@ -59,7 +59,7 @@ export default function FlutterwavePayment() {
       setPlan(fallback);
       setSubscription(fallback);
     }
-  }, [location, subscription]);
+  }, [location]);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
