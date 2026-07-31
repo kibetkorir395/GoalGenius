@@ -25,7 +25,7 @@ import { checkSubscriptionStatus } from './utils/subscription';
 import Payment from './pages/Pay/Payment';
 import Subscription from './pages/Pay/Subscription';
 import Pay from './pages/Pay/Pay';
-import FlutterwavePayment from './pages/FlutterwavePayment/FlutterwavePayment';
+import FlutterwavePayment from './pages/Pay/FlutterwavePayment';
 import Notification from './components/Notification/Notification';
 import { useCurrency } from './context/CurrencyContext';
 
