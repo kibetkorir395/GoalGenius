@@ -73,7 +73,7 @@ function App() {
       <Notification />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="subscribe" element={<ProtectedRoute>{ /*currency === "KES" ? <Subscription /> : */<Payment /> }</ProtectedRoute>} />
+        <Route path="subscribe" element={<ProtectedRoute>{ currency === "KES" ? <Subscription /> : <Payment /> }</ProtectedRoute>} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<ProtectedAuthRoute><Login /></ProtectedAuthRoute>} />
         <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
