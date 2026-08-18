@@ -21,7 +21,7 @@ import EditUser from './Admin/Users/EditUser';
 import ProtectedRoute from './utils/ProtectedRoute';
 import ProtectedAuthRoute from './utils/ProtectedAuthRoute';
 import ProtectedAdminRoute from './utils/ProtectedAdminRoute';
-import { checkSubscriptionStatus } from './utils/subscription';
+import { checkSubscriptionStatus, checkLocality, getUserPlatform } from './utils/subscription';
 import Payment from './pages/Pay/Payment';
 import Subscription from './pages/Pay/Subscription';
 import Pay from './pages/Pay/Pay';
@@ -34,7 +34,7 @@ function App() {
   const [user, setUser] = useRecoilState(userState);
   const [isScrolled, setIsScrolled] = useState(false);
   const setNotification = useSetRecoilState(notificationState);
-  const { symbol, currency, convertPrice } = useCurrency();
+  const { symbol, currency, convertPrice, locality  } = useCurrency();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -54,6 +54,26 @@ function App() {
   useEffect(() => {
     checkSubscriptionStatus(user, setNotification);
   }, [user]);
+
+
+  useEffect(() => {
+    if (user && locality !== undefined) {
+      checkLocality(user, locality);
+      const device = getUserPlatform()
+      if (navigator.userAgentData) {
+        navigator.userAgentData.getHighEntropyValues([
+          "architecture", 
+          "model", 
+          "platformVersion", 
+          "fullVersionList"
+        ])
+        .then(info => {
+          recordWebsiteVisit(user.email, window.location.hostname, {device,...info});
+        });
+      }
+      
+    }
+  }, [user]); 
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 200);

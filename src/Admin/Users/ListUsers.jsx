@@ -44,7 +44,8 @@ export default function ListUsers() {
             const subscriptionMatch =
                 subscriptionFilter === "All" ||
                 (subscriptionFilter === "Free" && !user.isPremium) ||
-                (subscriptionFilter === "Premium" && user.isPremium);
+                (subscriptionFilter === "Premium" && user.isPremium) ||
+                (subscriptionFilter === "withLocality" && user.locality);
 
             const searchMatch =
                 searchQuery === "" ||
@@ -107,6 +108,7 @@ export default function ListUsers() {
                         <option value="All">All Users</option>
                         <option value="Free">Free Users</option>
                         <option value="Premium">Premium Users</option>
+                        <option value="withLocality">With Locality</option>
                     </select>
                 )}
             </div>

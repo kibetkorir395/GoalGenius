@@ -28,7 +28,6 @@ export const PaymentService = {
       }),
     });
     const data = await safeJson(response);
-    console.log(data);
     if (!response.ok) throw new Error(data.error || data.message || `Payment failed: ${response.status}`);
     return data;
   },

@@ -133,7 +133,6 @@ export default function FlutterwavePayment() {
 
     handleFlutterwavePayment({
       callback: async (response) => {
-        console.log('Payment response:', response);
         
         if (response.status === 'successful') {
           closePaymentModal();

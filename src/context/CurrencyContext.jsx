@@ -27,6 +27,7 @@ const CurrencyContext = createContext(null);
 export function CurrencyProvider({ children }) {
     const [country, setCountry] = useState(DEFAULT_COUNTRY);
     const [detected, setDetected] = useState(null);
+    const [locality, setLocality] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const detectCountry = useCallback(async () => {
@@ -70,6 +71,7 @@ export function CurrencyProvider({ children }) {
         rate: country.rate,
         convertPrice,
         setCountry,
+        locality
     };
 
     return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
@@ -82,6 +84,7 @@ export function useCurrency() {
         return {
             country: DEFAULT_COUNTRY,
             detected: null,
+            locality: null,
             loading: false,
             currency: DEFAULT_COUNTRY.currency,
             symbol: DEFAULT_COUNTRY.symbol,

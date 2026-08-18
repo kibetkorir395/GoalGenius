@@ -1,5 +1,11 @@
 import "./UserCard.scss";
 import { BiUser, BiEnvelope } from "react-icons/bi";
+import { MdLocationPin, MdAndroid } from 'react-icons/md';
+import { RiMacbookFill } from "react-icons/ri";
+import { FaInternetExplorer } from "react-icons/fa";
+import { FaApple } from "react-icons/fa";
+import { FaWindows } from "react-icons/fa";
+import { FaLinux } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 
 const UserCard = ({ user }) => {
@@ -37,6 +43,9 @@ const UserCard = ({ user }) => {
         <div className={`user-badge ${user.isPremium ? "premium" : "free"}`}>
           {user.isPremium ? "VIP" : "Free"}
         </div>
+        <span className="plan-badge">
+            {user.locality && <><MdLocationPin className="badge-icon" />{user.locality.city}, {user.locality.region}</>}
+        </span>
       </div>
       <div className="user-card-body">
         <div className="user-avatar">
@@ -44,8 +53,41 @@ const UserCard = ({ user }) => {
         </div>
         <div className="user-details">
           <div className="user-name">
-            <BiUser className="detail-icon" />
-            <span>{user.username || "No username"}</span>
+            <div>
+              <BiUser className="detail-icon" />
+              <span>{user.username || "No username"}</span>
+            </div>
+              {user.visitedWebsites && (() => {
+                    const firstWithDevice = Object.entries(user.visitedWebsites).find(
+                        ([key, value]) => value && value.device
+                    );
+
+                    const siteData = firstWithDevice ? firstWithDevice[1] : null;
+                    
+                    // This is the object: e.g., { device: 'iOS' } or similar
+                    const deviceObj = siteData ? siteData.device : null; 
+
+                    // Adjust 'deviceObj.type' or 'deviceObj.name' if the string lives under a different key
+                    const deviceName = deviceObj && typeof deviceObj === 'object' 
+                        ? (deviceObj.device || deviceObj.type || "").toLowerCase() : "";
+
+                    if (deviceName) {
+                        switch (deviceName) {
+                            case 'ios':
+                            case 'mac':
+                                return <FaApple className="detail-icon"/>;
+                            case 'android':
+                                return <MdAndroid className="detail-icon"/>;
+                            case 'windows':
+                                return <FaWindows className="detail-icon"/>;
+                            case 'linux':
+                                return <FaLinux />;
+                            default:
+                                return <FaInternetExplorer className="detail-icon"/>;
+                        }
+                    }
+                    return null; // Return null if no device match is found
+                })()}
           </div>
           <div className="user-email">
             <BiEnvelope className="detail-icon" />

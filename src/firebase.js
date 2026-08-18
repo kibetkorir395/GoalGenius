@@ -105,6 +105,49 @@ export const updateUser = async (userId, isPremium, subscription, setNotificatio
   })
 }
 
+export const updateUserLocality = async (userId, locality) => {
+  const usercollref = doc(db, 'users', userId)
+  updateDoc(usercollref, {
+    'locality' : locality
+  }).then(response => {
+    /*setNotification({
+      isVisible: true,
+      type: 'success',
+      message: "user data updated!",
+    });*/
+  }).catch(error => {
+    /*setNotification({
+      isVisible: true,
+      type: 'error',
+      message: "An Unkown Error Occurred" + error.message,
+    });*/
+  })
+}
+
+export const recordWebsiteVisit = async (userId, websiteUrl, device) => {
+  if (!userId || !websiteUrl) return;
+
+  // Clean the URL string so it doesn't contain '.' characters in the key name 
+  // (Firestore uses dots for nested paths, so we replace them or encode them)
+  const safeWebKey = websiteUrl.replace(/\./g, '_'); 
+
+  const userDocRef = doc(db, 'users', userId);
+
+  try {
+    await updateDoc(userDocRef, {
+      // Overwrites or creates 'visitedWebsites.example_com' with the current time
+      [`visitedWebsites.${safeWebKey}`]: {
+        originalUrl: websiteUrl,
+        device,
+        lastVisitedAt: serverTimestamp() // Uses Firebase's server time
+      }
+    });
+    //console.log("Visit time updated successfully!");
+  } catch (error) {
+    //console.error("Error recording website visit:", error);
+  }
+};
+
 export const getUser = async (userId, setUserData) => {
   const userDoc = await getDoc(doc(db, 'users', userId));
   if (userDoc.exists()) {
