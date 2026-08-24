@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { notificationState, userState } from './recoil/atoms';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth, getUser } from './firebase';
+import { auth, getUser, recordWebsiteVisit } from './firebase';
 import { IoArrowUp } from "react-icons/io5";
 
 import Navbar from './components/Navbar/Navbar';

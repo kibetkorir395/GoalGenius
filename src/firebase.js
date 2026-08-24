@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
-import { collection, doc, getDoc, getDocs, getFirestore, query, updateDoc, where, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, query, updateDoc, serverTimestamp, where, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdzgeQpJyKlalVoQ-q4-msajNdgss6OGU",
@@ -19,16 +19,46 @@ export const auth = getAuth(app);
 
 export const signInUser = async (email, password, setNotification, navigate, from, refreshUser) => {
   signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
-    setNotification({
-      isVisible: true,
-      type: 'success',
-      message: "Welcome Back!",
-    });
-
-    if (refreshUser) {
-      await refreshUser(userCredential.user.email);
-    }  
-    navigate(from); // Add redirect
+    const user = userCredential.user;
+    const userDocRef = doc(db, "users", user.email);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      setNotification({
+        isVisible: true,
+        type: 'success',
+        message: "Welcome Back!",
+      });
+  
+      if (refreshUser) {
+        await refreshUser(user.email);
+      }  
+      navigate(from); // Add redirect*/
+    } else {
+      return await setDoc(userDocRef, {
+        email: user.email,
+        username: user.email.split("@")[0],
+        isPremium: false,
+        subscription: null
+      }).then(async (response) => {
+        setNotification({
+          isVisible: true,
+          type: 'success',
+          message: "Welcome Back!",
+        });
+        
+        if (refreshUser) {
+          await refreshUser(user.email);
+        }
+        navigate(from); // Add redirect here
+      }).catch(async (error) => {
+        const errorMessage = await error.message;
+        setNotification({
+          isVisible: true,
+          type: 'error',
+          message: errorMessage,
+        });
+      });
+    }
   }).catch(async (error) => {
     const errorMessage = await error.message;
     setNotification({
@@ -142,7 +172,6 @@ export const recordWebsiteVisit = async (userId, websiteUrl, device) => {
         lastVisitedAt: serverTimestamp() // Uses Firebase's server time
       }
     });
-    //console.log("Visit time updated successfully!");
   } catch (error) {
     //console.error("Error recording website visit:", error);
   }

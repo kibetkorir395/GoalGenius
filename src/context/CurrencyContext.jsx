@@ -36,6 +36,7 @@ export function CurrencyProvider({ children }) {
             const res = await fetch('https://ipapi.co/json/');
             if (res.ok) {
                 const data = await res.json();
+                await setLocality(data);
                 const matched = COUNTRIES[data.country_code];
                 if (matched) {
                     setCountry(matched);
