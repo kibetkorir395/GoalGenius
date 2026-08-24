@@ -15,7 +15,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 const NOWPAYMENTS_API_KEY = "D7YT1YV-PCAM4ZN-HX9W5M1-H02KFCV";
 const EXCHANGE_RATE = 150;
 
-// KoraPay API keys
+// KoraPay API keys - MOVE THESE TO BACKEND!
 const KORAPAY_SECRET_KEY = "sk_live_QSCFYWDHaEL8Yv3V4JA49G7vm2muVRHxAiBhuhgP";
 const KORAPAY_API_URL = "https://api.korapay.com/merchant/api/v1/charges/initialize";
 
@@ -40,6 +40,7 @@ export default function Payment() {
   const [generatingAddress, setGeneratingAddress] = useState(false);
   const [paymentId, setPaymentId] = useState(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [convertedPrice, setConvertedPrice] = useState(0); // Store converted price
   const pollingIntervalRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,26 +49,40 @@ export default function Payment() {
   const [plan, setPlan] = useState(null);
   const { symbol, currency, convertPrice } = useCurrency();
 
-  // ✅ FIXED: Set initial plan
+  // ✅ FIXED: Set initial plan and converted price
   useEffect(() => {
+    let selectedPlan;
     if (location.state?.subscription) {
-      const sub = location.state.subscription;
-      setPlan({
-        ...sub,
-        price: sub.price != null ? sub.price : convertPrice(sub.price),
-        currency: sub.currency || symbol,
-      });
-      setSubscription(sub);
+      selectedPlan = location.state.subscription;
     } else {
-      const fallback = { 
-        ...pricings[0], 
-        price: convertPrice(pricings[0].price), 
-        currency: symbol 
-      };
-      setPlan(fallback);
-      setSubscription(fallback);
+      selectedPlan = { ...pricings[0] };
     }
-  }, [location.state?.subscription]); // ✅ Only depend on what we actually need
+    
+    // Convert the price immediately
+    const converted = convertPrice(selectedPlan.price);
+    
+    setPlan({
+      ...selectedPlan,
+      price: selectedPlan.price,
+      convertedPrice: converted,
+      currency: selectedPlan.currency || symbol,
+    });
+    
+    setConvertedPrice(converted);
+    setSubscription(selectedPlan);
+  }, [location.state?.subscription]);
+
+  // ✅ Update converted price whenever convertPrice or plan changes
+  useEffect(() => {
+    if (plan?.price !== undefined) {
+      const converted = convertPrice(plan.price);
+      setConvertedPrice(converted);
+      setPlan(prev => ({
+        ...prev,
+        convertedPrice: converted,
+      }));
+    }
+  }, [plan?.price, convertPrice]);
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -91,7 +106,7 @@ export default function Payment() {
     if (reference && !processing) {
       verifyKoraTransaction(reference);
     }
-  }, []); // ✅ Empty dependency array is correct for this one
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -105,7 +120,9 @@ export default function Payment() {
   const kshToUsd = (ksh) => (ksh / EXCHANGE_RATE).toFixed(2);
   const getUsdPrice = () => {
     if (!plan) return 0;
-    return kshToUsd(plan.price || 0);
+    // Use the converted price or fallback to converting
+    const priceToUse = plan.convertedPrice || convertPrice(plan.price);
+    return kshToUsd(priceToUse);
   };
 
   const verifyKoraTransaction = async (reference) => {
@@ -148,6 +165,8 @@ export default function Payment() {
     setIsPolling(false);
     
     try {
+      const usdPrice = getUsdPrice();
+      
       const res = await fetch('https://api.nowpayments.io/v1/payment', {
         method: 'POST',
         headers: {
@@ -155,7 +174,7 @@ export default function Payment() {
           'x-api-key': NOWPAYMENTS_API_KEY,
         },
         body: JSON.stringify({
-          price_amount: parseFloat(getUsdPrice()),
+          price_amount: parseFloat(usdPrice),
           price_currency: 'usd',
           pay_currency: selectedCurrency.toLowerCase(),
           order_id: `VIP-${plan?.plan || 'sub'}-${Date.now()}`,
@@ -269,6 +288,7 @@ export default function Payment() {
     navigate('/', { replace: true });
   };
 
+  // ✅ FIXED: Handle Kora payment with instant price
   const handleKora = async () => {
     if (!user?.email) {
       Swal.fire({
@@ -303,11 +323,19 @@ export default function Payment() {
     try {
       const reference = generateReference();
       const currentUrl = window.location.href.split('?')[0];
-      const amount = Math.round(Number(plan.price));
+      
+      // ✅ Get the correct converted amount
+      // Use the stored converted price, or fallback to converting it now
+      const amountToPay = convertedPrice || convertPrice(plan.price);
+      
+      // Determine currency based on symbol
       const payCurrency = (subscription?.currency || symbol) === '₦' ? 'NGN' : 'KES';
       
+      // ✅ Round the amount for payment processing
+      const finalAmount = Math.round(Number(amountToPay));
+      
       const paymentData = {
-        amount: amount, // ✅ FIXED: Use plan.price instead of undefined 'price'
+        amount: finalAmount, // ✅ Now using the converted price
         redirect_url: `${currentUrl}?reference=${reference}`,
         currency: payCurrency,
         reference: reference,
@@ -319,8 +347,12 @@ export default function Payment() {
         metadata: {
           plan: plan.plan,
           user_id: user?.email,
+          original_price: plan.price,
+          converted_price: finalAmount,
         },
       };
+
+      console.log('Sending payment data:', paymentData); // Debug log
 
       const response = await fetch(KORAPAY_API_URL, {
         method: 'POST',
@@ -350,7 +382,7 @@ export default function Payment() {
     }
   };
 
-  // ✅ Add loading state while plan is being set
+  // ✅ Loading state
   if (!plan) {
     return (
       <div className='pay-section'>
@@ -373,7 +405,7 @@ export default function Payment() {
           <h2 className='plan-title'>Upgrade to {plan?.plan} Plan</h2>
           <p className='plan-desc'>{plan?.title}</p>
           <div className='plan-price'>
-            <span className='price-amount'>{currency} {convertPrice(plan?.price)}</span>
+            <span className='price-amount'>{symbol} {convertedPrice || convertPrice(plan?.price)}</span>
             <span className='price-period'>/{plan?.billing}</span>
           </div>
           <div className='plan-features'>
@@ -418,7 +450,11 @@ export default function Payment() {
           {paymentMethod === 'kora' && (
             <div className='kora-form'>
               <p className='input-hint'>
-                Pay securely with M-Pesa, card, or bank transfer via Kora. You will be redirected to complete your payment.
+                Pay securely with M-Pesa, card, or bank transfer via Kora. 
+                You will be redirected to complete your payment.
+              </p>
+              <p className='payment-amount'>
+                Amount to pay: <strong>{symbol} {convertedPrice || convertPrice(plan?.price)}</strong>
               </p>
               <button
                 className='btn pay-btn'
@@ -429,7 +465,7 @@ export default function Payment() {
                   <span className='spinner'>Processing...</span>
                 ) : (
                   <>
-                    <FiCreditCard /> Pay {symbol} {plan?.price}
+                    <FiCreditCard /> Pay {symbol} {convertedPrice || convertPrice(plan?.price)}
                   </>
                 )}
               </button>
