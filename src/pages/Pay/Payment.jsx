@@ -287,7 +287,7 @@ export default function Payment() {
       const payCurrency = (subscription != null ? subscription.currency : symbol) === '₦' ? 'NGN' : 'KES';
       
       const paymentData = {
-        amount: amount,
+        amount: convertPrice(price),
         redirect_url: `${currentUrl}?reference=${reference}`,
         currency: payCurrency,//'KES',
         reference: reference,
@@ -342,7 +342,7 @@ export default function Payment() {
           <h2 className='plan-title'>Upgrade to {plan?.plan} Plan</h2>
           <p className='plan-desc'>{plan?.title}</p>
           <div className='plan-price'>
-            <span className='price-amount'>KSH {plan?.price}</span>
+            <span className='price-amount'>{currency} {convertPrice(plan?.price)}</span>
             <span className='price-period'>/{plan?.billing}</span>
           </div>
           <div className='plan-features'>
@@ -398,7 +398,7 @@ export default function Payment() {
                   <span className='spinner'>Processing...</span>
                 ) : (
                   <>
-                    <FiCreditCard /> Pay KSH {plan?.price}
+                    <FiCreditCard /> Pay {symbol} {plan?.price}
                   </>
                 )}
               </button>
