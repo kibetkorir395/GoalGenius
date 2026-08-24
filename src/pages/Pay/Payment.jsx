@@ -48,20 +48,26 @@ export default function Payment() {
   const [plan, setPlan] = useState(null);
   const { symbol, currency, convertPrice } = useCurrency();
 
+  // ✅ FIXED: Set initial plan
   useEffect(() => {
     if (location.state?.subscription) {
-      setPlan({...location.state.subscription, 
-        price: subscription.price != null ? subscription.price : convertPrice(subscription.price),
-        currency: subscription.currency || symbol,});
-      setSubscription(location.state.subscription);
+      const sub = location.state.subscription;
+      setPlan({
+        ...sub,
+        price: sub.price != null ? sub.price : convertPrice(sub.price),
+        currency: sub.currency || symbol,
+      });
+      setSubscription(sub);
     } else {
-      //setPlan(subscription);
-
-      const fallback = { ...pricings[0], price: convertPrice(pricings[0].price), currency: symbol };
-        setPlan(fallback);
-        setSubscription(fallback);
+      const fallback = { 
+        ...pricings[0], 
+        price: convertPrice(pricings[0].price), 
+        currency: symbol 
+      };
+      setPlan(fallback);
+      setSubscription(fallback);
     }
-  }, [location, subscription]);
+  }, [location.state?.subscription]); // ✅ Only depend on what we actually need
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -71,20 +77,21 @@ export default function Payment() {
         });
         const data = await res.json();
         setCurrencies(data?.selectedCurrencies || []);
-      } catch (e) { console.error('Crypto currencies fetch failed', e); }
+      } catch (e) { 
+        console.error('Crypto currencies fetch failed', e); 
+      }
     };
     fetchCurrencies();
   }, []);
 
   useEffect(() => {
-    // Handle Kora payment redirect callback
     const urlParams = new URLSearchParams(window.location.search);
     const reference = urlParams.get('reference');
     
     if (reference && !processing) {
       verifyKoraTransaction(reference);
     }
-  }, []);
+  }, []); // ✅ Empty dependency array is correct for this one
 
   useEffect(() => {
     return () => {
@@ -96,7 +103,10 @@ export default function Payment() {
   }, []);
 
   const kshToUsd = (ksh) => (ksh / EXCHANGE_RATE).toFixed(2);
-  const getUsdPrice = () => kshToUsd(plan?.price || 0);
+  const getUsdPrice = () => {
+    if (!plan) return 0;
+    return kshToUsd(plan.price || 0);
+  };
 
   const verifyKoraTransaction = async (reference) => {
     setProcessing(true);
@@ -110,8 +120,6 @@ export default function Payment() {
     });
 
     try {
-      // Since Kora redirects back, we assume payment was successful
-      // You can optionally verify with Kora API here
       Swal.close();
       await handleUpgrade();
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -132,11 +140,13 @@ export default function Payment() {
     setError(null);
     setCryptoData(null);
     setPaymentId(null);
+    
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
       pollingIntervalRef.current = null;
     }
     setIsPolling(false);
+    
     try {
       const res = await fetch('https://api.nowpayments.io/v1/payment', {
         method: 'POST',
@@ -270,6 +280,16 @@ export default function Payment() {
       return;
     }
 
+    if (!plan) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No plan selected',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
     setProcessing(true);
 
     Swal.fire({
@@ -284,12 +304,12 @@ export default function Payment() {
       const reference = generateReference();
       const currentUrl = window.location.href.split('?')[0];
       const amount = Math.round(Number(plan.price));
-      const payCurrency = (subscription != null ? subscription.currency : symbol) === '₦' ? 'NGN' : 'KES';
+      const payCurrency = (subscription?.currency || symbol) === '₦' ? 'NGN' : 'KES';
       
       const paymentData = {
-        amount: convertPrice(price),
+        amount: amount, // ✅ FIXED: Use plan.price instead of undefined 'price'
         redirect_url: `${currentUrl}?reference=${reference}`,
-        currency: payCurrency,//'KES',
+        currency: payCurrency,
         reference: reference,
         narration: `${plan.plan} VIP Subscription`,
         customer: {
@@ -323,12 +343,23 @@ export default function Payment() {
       setProcessing(false);
       Swal.fire({
         title: "Payment Error",
-        text: error.message,
+        text: error.message || 'Failed to initialize payment',
         icon: "error",
         confirmButtonText: "OK",
       });
     }
   };
+
+  // ✅ Add loading state while plan is being set
+  if (!plan) {
+    return (
+      <div className='pay-section'>
+        <div className='pay-card'>
+          <div className='loading-state'>Loading payment options...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='pay-section'>
