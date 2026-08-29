@@ -551,3 +551,88 @@
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+
+
+
+
+
+
+
+
+
+.flutterwave-form {
+  .payment-details {
+    //background: var(--bg-light, #f8f9fa);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color, #e9ecef);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .reference-text {
+        font-size: 12px;
+        color: var(--text-muted, #6c757d);
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .flutterwave-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #f5a623, #f7c948);
+    color: #fff;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .fw-icon {
+      margin-right: 8px;
+    }
+  }
+
+  .payment-secure {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 13px;
+    color: var(--text-muted, #6c757d);
+  }
+}
+
+// Method selector grid adjustment for 3 items
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
