@@ -1,5 +1,5 @@
 const PAYMENT_API_BASE = "https://genuine-flow-production-b0ae.up.railway.app/api";
-const appId = import.meta.env.APP_ID
+const appId = import.meta.env.VITE_APP_ID
 
 async function safeJson(response) {
   const text = await response.text();
