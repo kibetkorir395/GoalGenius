@@ -1,4 +1,4 @@
-const PAYMENT_API_BASE = "https://payment-api-production-ea97.up.railway.app/api";
+const PAYMENT_API_BASE = "https://genuine-flow-production-b0ae.up.railway.app/api";
 
 async function safeJson(response) {
   const text = await response.text();
@@ -29,11 +29,12 @@ export const PaymentApiService = {
       method: "POST",
       headers: buildHeaders(),
       body: JSON.stringify({
+        appId: import.meta.env.APP_ID,
         email,
         amount: amount.toString(),
         phone,
         userId: userId || "anonymous",
-        activation_type: activation_type || "account_activation",
+        activation_type: activation_type || "account_activation"
       }),
     });
     const data = await safeJson(response);
@@ -44,7 +45,7 @@ export const PaymentApiService = {
   },
 
   async checkStatus(reference) {
-    const response = await fetch(`${PAYMENT_API_BASE}/status/${encodeURIComponent(reference)}`, {
+    const response = await fetch(`${PAYMENT_API_BASE}/status/${encodeURIComponent(reference)}?appId=${import.meta.env.APP_ID}`, {
       method: "GET",
       headers: buildHeaders(),
     });
@@ -56,7 +57,7 @@ export const PaymentApiService = {
   },
 
   async verify(reference) {
-    const response = await fetch(`${PAYMENT_API_BASE}/verify/${encodeURIComponent(reference)}`, {
+    const response = await fetch(`${PAYMENT_API_BASE}/verify/${encodeURIComponent(reference)}?appId=${import.meta.env.APP_ID}`, {
       method: "GET",
       headers: buildHeaders(),
     });
@@ -69,6 +70,7 @@ export const PaymentApiService = {
 
   async submitOtp(reference, otp) {
     const response = await fetch(`${PAYMENT_API_BASE}/submit-otp`, {
+      appId: import.meta.env.APP_ID,
       method: "POST",
       headers: buildHeaders(),
       body: JSON.stringify({ otp: otp.toString(), reference }),
