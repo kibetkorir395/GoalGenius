@@ -23,14 +23,15 @@ const FlutterwavePay = ({
     const tx_ref = `fw-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
     return {
-      public_key: "FLWPUBK-38aac8e4c9002a02b46496e8ef4b32ab-X", // Replace with your public key
+      public_key: import.meta.env.VITE_FLW_PUBLIC_KEY,
       tx_ref: tx_ref,
       amount: Number(amount),
       currency,
-      payment_options: "card,mobilemoney",
+      payment_options: "card,mobilemoney,ussd,banktransfer",
+      redirect_url: window.location.href,
       customer: {
         email: user?.email || 'customer@example.com',
-        phonenumber: user?.phone || '08000000000',
+        phonenumber: user?.phone || '',
         name: user?.username || user?.email?.split('@')[0] || 'Customer',
       },
       customizations: {
