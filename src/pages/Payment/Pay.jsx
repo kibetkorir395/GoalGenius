@@ -285,6 +285,7 @@ export default function Pay() {
                     plan={plan}
                     subscription={subscription}
                     onSuccess={handleUpgrade}
+                    currency ={currency}
                     processing={processing}
                     setProcessing={setProcessing}
                     onError={(err) => setError(err)}
@@ -296,6 +297,7 @@ export default function Pay() {
                     user={user}
                     plan={plan}
                     convertedPrice={convertedPrice}
+                    currency ={currency}
                     symbol={symbol}
                     onSuccess={handleUpgrade}
                     processing={processing}
