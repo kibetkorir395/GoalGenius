@@ -42,6 +42,10 @@ export function CurrencyProvider({ children }) {
                     setCountry(matched);
                     setDetected(matched);
                     return;
+                } else if (COUNTRIES[data.continent_code]){
+                    setCountry(COUNTRIES[data.continent_code]);
+                    setDetected(COUNTRIES[data.continent_code]);
+                    return;
                 }
             }
             setCountry(DEFAULT_COUNTRY);
