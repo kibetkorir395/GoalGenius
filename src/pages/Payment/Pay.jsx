@@ -31,7 +31,7 @@ const paypalInitialOptions = {
 export default function Pay() {
   const [user, setUser] = useRecoilState(userState);
   const [processing, setProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('mpesa');
+  const [paymentMethod, setPaymentMethod] = useState('kora');
   const [error, setError] = useState(null);
   const [step, setStep] = useState(0);
   const [phone, setPhone] = useState('');
@@ -55,7 +55,8 @@ export default function Pay() {
 
     switch (currency) {
       case 'KES':
-        setPaymentMethod('mpesa')
+        //setPaymentMethod('mpesa')
+        setPaymentMethod('kora')
         break;
       case 'NGN':
         setPaymentMethod('kora')
