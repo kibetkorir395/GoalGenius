@@ -3,6 +3,8 @@ import { truncateTitle } from "../../utils/textUtils";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { BiEdit } from "react-icons/bi";
+import { IoMdCheckmarkCircle } from "react-icons/io";
+import { RiCloseCircleFill } from "react-icons/ri";
 import { userNameSelector } from "../../recoil/selectors";
 import { useRecoilValue } from "recoil";
 
@@ -24,9 +26,9 @@ export default function TipCard({ tip, isAdmin, today }) {
     if (tip.status === "pending") {
       return { label: 'PENDING', className: 'status-pending', icon: '⏳' };
     } else if (tip.won === "won") {
-      return { label: 'WON', className: 'status-won', icon: '✅' };
+      return { label: 'WON', className: 'status-won', icon: <IoMdCheckmarkCircle /> };
     } else {
-      return { label: 'LOST', className: 'status-lost', icon: '❌' };
+      return { label: 'LOST', className: 'status-lost', icon: <RiCloseCircleFill /> };
     }
   };
 
