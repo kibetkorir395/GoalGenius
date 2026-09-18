@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useFlutterwave } from 'react-flutterwave';
+import { } from 'flutterwave-react-v3';
 import Swal from 'sweetalert2';
 
 const FlutterwavePay = ({ 

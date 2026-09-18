@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import UserCard from "../../components/UserCard/UserCard";
 import { userState } from '../../recoil/atoms';
-import { getAllusers } from "../../firebase";
+import { getAllusers, db } from "../../firebase";
+import { doc, updateDoc } from 'firebase/firestore';
 import Loader from "../../components/Loader/Loader";
 import { useRecoilValue } from "recoil";
 import { useNavigate } from "react-router-dom";
@@ -40,6 +41,20 @@ export default function ListUsers() {
     }, [isAdmin]);
 
     const filteredUsers = useMemo(() => {
+
+        users && users.length > 0 && users.forEach(user => {
+            if (!user.email) return; 
+
+            const usercollref = doc(db, 'users', user.email);
+
+            if(user.isPremium && (user.subscription == null || user.subscription == '')) {
+                updateDoc(usercollref,{
+                    isPremium: false, 
+                    subscription: null        
+                })
+            }
+        })
+
         return users.filter((user) => {
             const subscriptionMatch =
                 subscriptionFilter === "All" ||
