@@ -1,5 +1,6 @@
 import './TipCard.scss';
 import { truncateTitle } from "../../utils/textUtils";
+import { tipDateTimeToDate, formatInUserLocale } from '../../utils/dateUtils';
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { BiEdit } from "react-icons/bi";
@@ -35,11 +36,28 @@ export default function TipCard({ tip, isAdmin, today }) {
   const status = getStatus(tip);
   const isPremium = tip.premium;
 
+  const tipDate = tipDateTimeToDate(tip.date, tip.time);
+
+  const localTime = tipDate
+    ? new Intl.DateTimeFormat(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(tipDate)
+    : tip.time;
+
+  const localDate = tipDate
+    ? new Intl.DateTimeFormat(undefined, {
+        month: 'short',
+        day: 'numeric',
+      }).format(tipDate)
+    : tip.date;
+
   return (
     <div className={`tip-card ${isPremium ? 'premium' : ''}`}>
       <div className="tip-card-header">
         <div className="tip-meta">
-          <span className="tip-time">{tip.time}</span>
+          <span className="tip-time">{localTime}</span>
           <span className={`tip-badge ${isPremium ? 'vip' : 'free'}`}>
             {isPremium ? '💎 VIP' : '🔓 Free'}
           </span>
