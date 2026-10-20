@@ -25,40 +25,40 @@ export function tipDateTimeToDate(dateStr, timeStr) {
 }
 
 export function formatInUserLocale(date, opts = {}) {
-    if (!date) return '';
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      ...opts,
-    }).format(date);
-  }
+  if (!date) return '';
+  return new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    ...opts,
+  }).format(date);
+}
 
 //If you want to show "Sep 19, 21:45" or "Today, 21:45" in the badge, extend the formatter. For example, "Today / Tomorrow / Yesterday" labels:
-  export function formatTipDateTime(dateStr, timeStr) {
-    const d = tipDateTimeToDate(dateStr, timeStr);
-    if (!d) return '';
-  
-    const time = new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).format(d);
-  
-    const now = new Date();
-    const dayMs = 86400000;
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const startOfTip = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-    const dayDiff = Math.round((startOfTip - startOfToday) / dayMs);
-  
-    if (dayDiff === 0) return `Today, ${time}`;
-    if (dayDiff === 1) return `Tomorrow, ${time}`;
-    if (dayDiff === -1) return `Yesterday, ${time}`;
-  
-    const date = new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
-    }).format(d);
-  
-    return `${date}, ${time}`;
-  }
+export function formatTipDateTime(dateStr, timeStr) {
+  const d = tipDateTimeToDate(dateStr, timeStr);
+  if (!d) return '';
+
+  const time = new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(d);
+
+  const now = new Date();
+  const dayMs = 86400000;
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfTip = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const dayDiff = Math.round((startOfTip - startOfToday) / dayMs);
+
+  if (dayDiff === 0) return `Today, ${time}`;
+  if (dayDiff === 1) return `Tomorrow, ${time}`;
+  if (dayDiff === -1) return `Yesterday, ${time}`;
+
+  const date = new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  }).format(d);
+
+  return `${date}, ${time}`;
+}

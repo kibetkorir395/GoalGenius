@@ -35,7 +35,7 @@ export default function Pay() {
   const [error, setError] = useState(null);
   const [step, setStep] = useState(0);
   const [phone, setPhone] = useState('');
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const setNotification = useSetRecoilState(notificationState);
@@ -55,8 +55,8 @@ export default function Pay() {
 
     switch (currency) {
       case 'KES':
-        //setPaymentMethod('mpesa')
-        setPaymentMethod('kora')
+        setPaymentMethod('mpesa')
+        //setPaymentMethod('kora')
         break;
       case 'NGN':
         setPaymentMethod('kora')
@@ -76,17 +76,17 @@ export default function Pay() {
     } else {
       selectedPlan = { ...pricings[0] };
     }
-    
+
     // Convert the price immediately
     const converted = convertPrice(selectedPlan.price);
-    
+
     setPlan({
       ...selectedPlan,
       price: selectedPlan.price,
       convertedPrice: converted,
       currency: selectedPlan.currency || symbol,
     });
-    
+
     setConvertedPrice(converted);
     setSubscription(selectedPlan);
   }, [location.state?.subscription]);
@@ -126,7 +126,7 @@ export default function Pay() {
     // Check for Kora payment callback
     const urlParams = new URLSearchParams(window.location.search);
     const reference = urlParams.get('reference');
-    
+
     if (reference && !processing) {
       verifyKoraTransaction(reference);
     }
@@ -169,7 +169,7 @@ export default function Pay() {
       }, setNotification);
       await getUser(user.email, setUser);
       setProcessing(false);
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Welcome to VIP! 🎉',
@@ -178,7 +178,7 @@ export default function Pay() {
         timer: 3000,
         showConfirmButton: true,
       });
-      
+
       navigate('/', { replace: true });
     } catch (err) {
       console.error('Upgrade error:', err);
@@ -234,9 +234,9 @@ export default function Pay() {
           {/* Payment Flow */}
           {step === 0 && (
             <>
-              <PaymentMethodSelector 
-                selected={paymentMethod} 
-                onChange={handleMethodChange} 
+              <PaymentMethodSelector
+                selected={paymentMethod}
+                onChange={handleMethodChange}
                 currency={currency}
               />
 
@@ -298,7 +298,7 @@ export default function Pay() {
                     user={user}
                     plan={plan}
                     convertedPrice={convertedPrice}
-                    currency ={currency}
+                    currency={currency}
                     symbol={symbol}
                     onSuccess={handleUpgrade}
                     processing={processing}
@@ -307,12 +307,12 @@ export default function Pay() {
                 )}
 
                 {paymentMethod === 'crypto' && (
-                  <CryptoPay 
-                    plan={plan} 
+                  <CryptoPay
+                    plan={plan}
                     onSuccess={handleUpgrade}
                   />
                 )}
-                
+
                 {paymentMethod === 'card' && (
                   <CardPay
                     plan={plan}
@@ -321,7 +321,7 @@ export default function Pay() {
                     processing={processing}
                     setProcessing={setProcessing}
                     onError={(err) => setError(err)}
-                  /> 
+                  />
                 )}
 
                 {paymentMethod === 'paypal' && (
