@@ -30,11 +30,14 @@ const PaymentMethodSelector = ({ selected, onChange, currency }) => {
     // If currency is KES (Kenya)
     if (currency === 'KES') {
       // Hide Flutterwave
-      methods = methods.filter(m => m.id !== 'flutterwave');
+      //methods = methods.filter(m => m.id !== 'flutterwave');
+
+      // Hide Kora and flutterwave
+      methods = methods.filter(m => m.id !== 'kora' && m.id !== 'flutterwave');
     }
     // If currency is NGN (Nigeria)
     else if (currency === 'NGN') {
-      // Hide M-Pesa and Kora
+      // Hide M-Pesa and flutterwave
       methods = methods.filter(m => m.id !== 'mpesa' && m.id !== 'flutterwave');
     }
     // For other currencies (USD, EUR, etc.)
