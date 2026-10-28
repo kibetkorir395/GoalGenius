@@ -248,23 +248,7 @@ export default function Pay() {
                   </div>
                 )}
 
-                {paymentMethod === 'mpesa' && (
-                  <PaystackPay
-                    user={user}
-                    plan={plan}
-                    onSuccess={handleUpgrade}
-                    onError={handleError}
-                    processing={processing}
-                    setProcessing={setProcessing}
-
-                    convertedPrice={convertedPrice}
-                    symbol={symbol}
-                    subscription={subscription}
-                  />
-                )}
-
-
-                {paymentMethod === 'kora' && (
+                {paymentMethod === 'kora' || paymentMethod === 'mpesa' && (
                   <KoraPay
                     user={user}
                     plan={plan}
@@ -279,6 +263,22 @@ export default function Pay() {
                     subscription={subscription}
                   />
                 )}
+
+                {/*paymentMethod === 'mpesa' && (
+                  <PaystackPay
+                    user={user}
+                    plan={plan}
+                    onSuccess={handleUpgrade}
+                    onError={handleError}
+                    processing={processing}
+                    setProcessing={setProcessing}
+
+                    convertedPrice={convertedPrice}
+                    symbol={symbol}
+                    subscription={subscription}
+                  />
+                )*/}
+
 
                 {/*paymentMethod === 'flutterwave' && (
                   <FlutterwavePayment
