@@ -55,8 +55,8 @@ export default function Pay() {
 
     switch (currency) {
       case 'KES':
-        setPaymentMethod('mpesa')
-        //setPaymentMethod('kora')
+        //setPaymentMethod('mpesa')
+        setPaymentMethod('kora')
         break;
       case 'NGN':
         setPaymentMethod('kora')
@@ -248,7 +248,7 @@ export default function Pay() {
                   </div>
                 )}
 
-                {paymentMethod === 'kora' || paymentMethod === 'mpesa' && (
+                {paymentMethod === 'kora' && (
                   <KoraPay
                     user={user}
                     plan={plan}
@@ -264,7 +264,7 @@ export default function Pay() {
                   />
                 )}
 
-                {/*paymentMethod === 'mpesa' && (
+                {paymentMethod === 'mpesa' && (
                   <PaystackPay
                     user={user}
                     plan={plan}
@@ -277,7 +277,7 @@ export default function Pay() {
                     symbol={symbol}
                     subscription={subscription}
                   />
-                )*/}
+                )}
 
 
                 {/*paymentMethod === 'flutterwave' && (
