@@ -115,11 +115,11 @@ export const featured = [
 ]
 
 export const socialUrls = [
-  { id: 1, icon: <IoLogoFacebook />, url: "https://www.facebook.com/profile.php?id=699140333272591", title: "Facebook" },
-  { id: 2, icon: <FaTelegram />, url: "https://t.me/bet365gurus", title: "Telegram" },
-  { id: 3, icon: <IoLogoWhatsapp />, url: "https://whatsapp.com/channel/0029VayjRf71t90afonqcy0b", title: "WhatsApp" },
-  { id: 4, icon: <PiXLogo />, url: "https://x.com/goalgeniusvip", title: "X(Twitter)" },
-  { id: 5, icon: <IoLogoInstagram />, url: "https://instagram.com/goalgenius.vip", title: "Instagram" },
+  { id: 1, icon: <IoLogoFacebook />, url: "https://www.facebook.com/profile.php?id=61596023590646", title: "Facebook" },
+  { id: 2, icon: <FaTelegram />, url: "https://t.me/goalkingss", title: "Telegram" },
+  { id: 3, icon: <IoLogoWhatsapp />, url: "https://whatsapp.com/channel/0029VbDKLeCKLaHg9ANwPA2t", title: "WhatsApp" },
+  //{ id: 4, icon: <PiXLogo />, url: "https://x.com/goalgeniusvip", title: "X(Twitter)" },
+  //{ id: 5, icon: <IoLogoInstagram />, url: "https://instagram.com/goalgenius.vip", title: "Instagram" },
 ];
 
 export const slides = [
