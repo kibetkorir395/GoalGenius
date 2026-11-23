@@ -17,6 +17,17 @@
     box-shadow: var(--shadow-md);
   }
 
+
+  &.premium {
+    border-color: var(--yellow);
+
+    .user-card-top {
+      background: linear-gradient(135deg, var(--yellow), var(--dark-yellow));
+    }
+  }
+
+
+
   .user-card-top {
     padding: 12px 16px;
     display: flex;
@@ -42,7 +53,8 @@
         color: var(--text-muted);
       }
     }
-    span{
+
+    span {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -91,13 +103,13 @@
         font-weight: 600;
         overflow: hidden;
 
-        > div{
+        >div {
           display: flex;
           align-items: center;
           gap: 6px;
         }
 
-        .detail-icon{
+        .detail-icon {
           font-size: 14px;
           color: var(--text-muted);
           flex-shrink: 0;
@@ -110,7 +122,7 @@
         }
       }
 
-      .user-name{
+      .user-name {
         display: flex;
         align-items: center;
         display: flex;
@@ -132,6 +144,11 @@
       .user-sub-date {
         font-size: 11px;
         color: var(--text-muted);
+      }
+
+      .visit-date {
+        font-size: 10px;
+        font-style: italic;
       }
     }
   }

@@ -35,7 +35,7 @@ const UserCard = ({ user, currentUser }) => {
 
   return (
     <NavLink
-      className="user-card"
+      className={`user-card ${user.isPremium && 'premium'}`}
       to={`/users/${user.email}`}
       state={user}
     >
@@ -103,7 +103,7 @@ const UserCard = ({ user, currentUser }) => {
             Object.values(user.visitedWebsites)
               .sort((a, b) => (b.lastVisitedAt?.seconds ?? 0) - (a.lastVisitedAt?.seconds ?? 0))
               .map((site) => (
-                <div key={site.originalUrl} className="sub-date">
+                <div key={site.originalUrl} className="visit-date">
                   {site.originalUrl} — {site.lastVisitedAt?.seconds
                     ? new Date(site.lastVisitedAt.seconds * 1000).toLocaleString()
                     : 'unknown'}
