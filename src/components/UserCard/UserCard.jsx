@@ -8,7 +8,7 @@ import { FaWindows } from "react-icons/fa";
 import { FaLinux } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 
-const UserCard = ({ user }) => {
+const UserCard = ({ user, currentUser }) => {
   function formatDate(dateString) {
     if (!dateString) return "Not subscribed";
     const date = new Date(dateString);
@@ -44,7 +44,7 @@ const UserCard = ({ user }) => {
           {user.isPremium ? "VIP" : "Free"}
         </div>
         <span className="plan-badge">
-            {user.locality && <><MdLocationPin className="badge-icon" />{user.locality.city}, {user.locality.region}</>}
+          {user.locality && <><MdLocationPin className="badge-icon" />{user.locality.city}, {user.locality.region}</>}
         </span>
       </div>
       <div className="user-card-body">
@@ -57,48 +57,65 @@ const UserCard = ({ user }) => {
               <BiUser className="detail-icon" />
               <span>{user.username || "No username"}</span>
             </div>
-              {user.visitedWebsites && (() => {
-                    const firstWithDevice = Object.entries(user.visitedWebsites).find(
-                        ([key, value]) => value && value.device
-                    );
+            {user.visitedWebsites && (() => {
+              const firstWithDevice = Object.entries(user.visitedWebsites).find(
+                ([key, value]) => value && value.device
+              );
 
-                    const siteData = firstWithDevice ? firstWithDevice[1] : null;
-                    
-                    // This is the object: e.g., { device: 'iOS' } or similar
-                    const deviceObj = siteData ? siteData.device : null; 
+              const siteData = firstWithDevice ? firstWithDevice[1] : null;
 
-                    // Adjust 'deviceObj.type' or 'deviceObj.name' if the string lives under a different key
-                    const deviceName = deviceObj && typeof deviceObj === 'object' 
-                        ? (deviceObj.device || deviceObj.type || "").toLowerCase() : "";
+              // This is the object: e.g., { device: 'iOS' } or similar
+              const deviceObj = siteData ? siteData.device : null;
 
-                    if (deviceName) {
-                        switch (deviceName) {
-                            case 'ios':
-                            case 'mac':
-                                return <FaApple className="detail-icon"/>;
-                            case 'android':
-                                return <MdAndroid className="detail-icon"/>;
-                            case 'windows':
-                                return <FaWindows className="detail-icon"/>;
-                            case 'linux':
-                                return <FaLinux />;
-                            default:
-                                return <FaInternetExplorer className="detail-icon"/>;
-                        }
-                    }
-                    return null; // Return null if no device match is found
-                })()}
+              // Adjust 'deviceObj.type' or 'deviceObj.name' if the string lives under a different key
+              const deviceName = deviceObj && typeof deviceObj === 'object'
+                ? (deviceObj.device || deviceObj.type || "").toLowerCase() : "";
+
+              if (deviceName) {
+                switch (deviceName) {
+                  case 'ios':
+                  case 'mac':
+                    return <FaApple className="detail-icon" />;
+                  case 'android':
+                    return <MdAndroid className="detail-icon" />;
+                  case 'windows':
+                    return <FaWindows className="detail-icon" />;
+                  case 'linux':
+                    return <FaLinux />;
+                  default:
+                    return <FaInternetExplorer className="detail-icon" />;
+                }
+              }
+              return null; // Return null if no device match is found
+            })()}
           </div>
           <div className="user-email">
             <BiEnvelope className="detail-icon" />
             <span>{user.email}</span>
           </div>
           <div className="user-plan">
-            Plan: { user.subscription && user.subscription.plan || "None" }
+            Plan: {user.subscription && user.subscription.plan || "None"}
           </div>
-          <div className="user-sub-date">
-            {(user.subscription && user.subscription.subDate) ? formatDate(user.subscription.subDate) : "Never subscribed"}
-          </div>
+          {(user.subscription && user.subscription.subDate) && <div className="user-sub-date">
+            Subscribed {formatDate(user.subscription.subDate)}
+          </div>}
+          {currentUser && currentUser.email === "kkibetkkoir@gmail.com" && user.visitedWebsites &&
+            Object.values(user.visitedWebsites)
+              .sort((a, b) => (b.lastVisitedAt?.seconds ?? 0) - (a.lastVisitedAt?.seconds ?? 0))
+              .map((site) => (
+                <div key={site.originalUrl} className="sub-date">
+                  {site.originalUrl} — {site.lastVisitedAt?.seconds
+                    ? new Date(site.lastVisitedAt.seconds * 1000).toLocaleString()
+                    : 'unknown'}
+                </div>
+              )
+              )
+          }
+          {/*user.visitedWebsites && (
+                    <div className="sub-date">
+                      {getLastVisitedUrl(user.visitedWebsites)}
+                    </div>
+                )*/}
         </div>
       </div>
     </NavLink>

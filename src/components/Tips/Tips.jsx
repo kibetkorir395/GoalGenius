@@ -1,5 +1,5 @@
 import { MdArrowBackIos, MdArrowForwardIos } from 'react-icons/md';
-import TipCard from '../TipCard/TipCard';
+import TipCard from '../TipCard2/TipCard';
 import './Tips.scss';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -81,7 +81,20 @@ export default function Tips() {
   useEffect(() => {
     const dates = [];
     const today = new Date();
-    for (let i = 0; i < 14; i++) {
+
+
+    const year = new Date().getFullYear();
+    const totalDays = new Date(year, 1, 29).getDate() === 29 ? 366 : 365;
+
+    const now = new Date();
+    const startOfYear = Date.UTC(now.getFullYear(), 0, 1);
+    const todayDate = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const daysElapsed = Math.floor((todayDate - startOfYear) / 86400000) + 1;
+
+    console.log(daysElapsed); // 327 (for Nov 23, 2026)
+
+    for (let i = 0; i < daysElapsed; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       const y = d.getFullYear();
@@ -226,8 +239,8 @@ export default function Tips() {
       </div>
 
       <div className='tips-cta'>
-        <NavLink 
-          to='/subscribe' 
+        <NavLink
+          to='/subscribe'
           className='btn'
           state={{ from: location, subscription: pricings[1] }}>
           <span className='diamond'>💎</span>

@@ -11,7 +11,7 @@ import { FiSearch, FiUsers } from 'react-icons/fi';
 
 const ADMIN_EMAILS = ['kkibetkkoir@gmail.com', 'charleykibet254@gmail.com', 'coongames8@gmail.com'];
 
-export default function ListUsers() {
+export default function ListUsers({ currentUser }) {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState([]);
     const user = useRecoilValue(userState);
@@ -43,14 +43,14 @@ export default function ListUsers() {
     const filteredUsers = useMemo(() => {
 
         users && users.length > 0 && users.forEach(user => {
-            if (!user.email) return; 
+            if (!user.email) return;
 
             const usercollref = doc(db, 'users', user.email);
 
-            if(user.isPremium && (user.subscription == null || user.subscription == '')) {
-                updateDoc(usercollref,{
-                    isPremium: false, 
-                    subscription: null        
+            if (user.isPremium && (user.subscription == null || user.subscription == '')) {
+                updateDoc(usercollref, {
+                    isPremium: false,
+                    subscription: null
                 })
             }
         })
@@ -66,7 +66,7 @@ export default function ListUsers() {
                 searchQuery === "" ||
                 (user.username && user.username.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()))// ||
-                //(user.subscription && user.subscription.toLowerCase().includes(searchQuery.toLowerCase()));
+            //(user.subscription && user.subscription.toLowerCase().includes(searchQuery.toLowerCase()));
 
             return subscriptionMatch && searchMatch;
         });
@@ -131,7 +131,7 @@ export default function ListUsers() {
             <div className="users-grid">
                 {filteredUsers.length > 0
                     ? filteredUsers.map((user) => (
-                        <UserCard key={user.email} user={user} />
+                        <UserCard key={user.email} user={user} currentUser={currentUser} />
                     ))
                     : !loading && (
                         <div className="no-results">

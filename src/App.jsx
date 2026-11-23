@@ -31,7 +31,7 @@ function App() {
   const [user, setUser] = useRecoilState(userState);
   const [isScrolled, setIsScrolled] = useState(false);
   const setNotification = useSetRecoilState(notificationState);
-  const { locality  } = useCurrency();
+  const { locality } = useCurrency();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -44,7 +44,7 @@ function App() {
         setLoading(false);
       })();
     });
-  
+
     return () => unsubscribe();
   }, []);
 
@@ -59,18 +59,18 @@ function App() {
       const device = getUserPlatform()
       if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues([
-          "architecture", 
-          "model", 
-          "platformVersion", 
+          "architecture",
+          "model",
+          "platformVersion",
           "fullVersionList"
         ])
-        .then(info => {
-          recordWebsiteVisit(user.email, window.location.hostname, {device,...info});
-        });
+          .then(info => {
+            recordWebsiteVisit(user.email, window.location.hostname, { device, ...info });
+          });
       }
-      
+
     }
-  }, [user]); 
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 200);
@@ -96,7 +96,7 @@ function App() {
         <Route path="register" element={<ProtectedAuthRoute><Register /></ProtectedAuthRoute>} />
         <Route path="add-tip" element={<ProtectedAdminRoute><AddTip /></ProtectedAdminRoute>} />
         <Route path="edit-tip" element={<ProtectedAdminRoute><EditTip /></ProtectedAdminRoute>} />
-        <Route path="users" element={<ProtectedAdminRoute><ListUsers /></ProtectedAdminRoute>} />
+        <Route path="users" element={<ProtectedAdminRoute><ListUsers currentUser={user} /></ProtectedAdminRoute>} />
         <Route path="users/:id" element={<ProtectedAdminRoute><EditUser /></ProtectedAdminRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
