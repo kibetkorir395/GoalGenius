@@ -17,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-export const signInUser = async (email, password, setNotification, navigate, from, refreshUser) => {
+export const signInUser = async (email, password, setNotification, navigate, from, refreshUser, state) => {
   signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
     const user = userCredential.user;
     const userDocRef = doc(db, "users", user.email);
@@ -28,11 +28,11 @@ export const signInUser = async (email, password, setNotification, navigate, fro
         type: 'success',
         message: "Welcome Back!",
       });
-  
+
       if (refreshUser) {
         await refreshUser(user.email);
-      }  
-      navigate(from); // Add redirect*/
+      }
+      navigate(from, { state }); // Add redirect*/
     } else {
       return await setDoc(userDocRef, {
         email: user.email,
@@ -45,11 +45,11 @@ export const signInUser = async (email, password, setNotification, navigate, fro
           type: 'success',
           message: "Welcome Back!",
         });
-        
+
         if (refreshUser) {
           await refreshUser(user.email);
         }
-        navigate(from); // Add redirect here
+        navigate(from, { state }); // Add redirect*/
       }).catch(async (error) => {
         const errorMessage = await error.message;
         setNotification({
@@ -92,7 +92,7 @@ export const registerUser = async (username, email, password, setNotification, n
         type: 'success',
         message: `User with ${user.email} has been registered successfully`,
       });
-      
+
       if (refreshUser) {
         await refreshUser(user.email);
       }
@@ -138,7 +138,7 @@ export const updateUser = async (userId, isPremium, subscription, setNotificatio
 export const updateUserLocality = async (userId, locality) => {
   const usercollref = doc(db, 'users', userId)
   updateDoc(usercollref, {
-    'locality' : locality
+    'locality': locality
   }).then(response => {
     /*setNotification({
       isVisible: true,
@@ -159,7 +159,7 @@ export const recordWebsiteVisit = async (userId, websiteUrl, device) => {
 
   // Clean the URL string so it doesn't contain '.' characters in the key name 
   // (Firestore uses dots for nested paths, so we replace them or encode them)
-  const safeWebKey = websiteUrl.replace(/\./g, '_'); 
+  const safeWebKey = websiteUrl.replace(/\./g, '_');
 
   const userDocRef = doc(db, 'users', userId);
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import './Auth.scss'
 import { getUser, registerUser } from '../../firebase';
 import AppHelmet from '../AppHelmet';
@@ -7,6 +7,7 @@ import ScrollToTop from '../ScrollToTop';
 import { notificationState, userState } from '../../recoil/atoms';
 import { useSetRecoilState, useRecoilState } from 'recoil';
 import { FiUserPlus, FiMail, FiLock, FiUser } from 'react-icons/fi';
+import { pricings } from '../../data';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
@@ -16,6 +17,7 @@ export const Register = () => {
   const setNotification = useSetRecoilState(notificationState);
   const [user, setUser] = useRecoilState(userState); // Add this line to get setUser
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -23,7 +25,9 @@ export const Register = () => {
       setProcessing(true);
       const refreshUser = async (email) => {
         await getUser(email, setUser);
-        navigate('/subscribe');
+        navigate('/subscribe', {
+          state: { from: location, subscription: pricings[1] }
+        });
       };
       await registerUser(username, email, password, setNotification, navigate, refreshUser);
       setProcessing(false);

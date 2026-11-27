@@ -5,7 +5,7 @@ import { getUser, signInUser, sendPasswordReset } from '../../firebase';
 import AppHelmet from '../AppHelmet';
 import ScrollToTop from '../ScrollToTop';
 import { notificationState, userState } from '../../recoil/atoms';
-import { useSetRecoilState , useRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilState } from 'recoil';
 import { FiLogIn, FiMail, FiLock, FiKey, FiArrowLeft } from 'react-icons/fi';
 
 export const Login = () => {
@@ -23,11 +23,11 @@ export const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if(email && password) {
+    if (email && password) {
       const refreshUser = async (email) => {
         await getUser(email, setUser);
       };
-      signInUser(email, password, setNotification, navigate, from, refreshUser); // Pass navigate
+      signInUser(email, password, setNotification, navigate, from, refreshUser, state = location.state); // Pass navigate
     } else {
       setNotification({
         isVisible: true,
@@ -70,7 +70,7 @@ export const Login = () => {
 
   return (
     <div className='auth-page'>
-      <AppHelmet title={"Login"}/>
+      <AppHelmet title={"Login"} />
       <ScrollToTop />
       <div className="auth-card">
         {!showReset ? (
