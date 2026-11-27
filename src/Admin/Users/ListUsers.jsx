@@ -17,7 +17,7 @@ export default function ListUsers({ currentUser }) {
     const user = useRecoilValue(userState);
     const navigate = useNavigate();
     const [isAdmin, setIsAdmin] = useState(false);
-    const [subscriptionFilter, setSubscriptionFilter] = useState("All");
+    const [subscriptionFilter, setSubscriptionFilter] = useState("withLocality");
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
