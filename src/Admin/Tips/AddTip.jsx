@@ -63,11 +63,11 @@ export default function AddTip() {
                 <form onSubmit={handleSubmit}>
                     <div className="input-container vertical">
                         <label htmlFor="home">Home Team</label>
-                        <input type="text" placeholder='e.g. Manchester United' id='home' value={home} onChange={(e) => setHome(e.target.value.trim())} required />
+                        <input type="text" placeholder='e.g. Manchester United' id='home' value={home} onChange={(e) => setHome(e.target.value)} onBlur={() => setHome((prev) => prev.trim())} required />
                     </div>
                     <div className="input-container vertical">
                         <label htmlFor="away">Away Team</label>
-                        <input type="text" placeholder='e.g. Liverpool' id='away' value={away} onChange={(e) => setAway(e.target.value.trim())} required />
+                        <input type="text" placeholder='e.g. Liverpool' id='away' value={away} onChange={(e) => setAway(e.target.value)} onBlur={() => setAway((prev) => prev.trim())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="odds">Odds</label>
@@ -75,11 +75,11 @@ export default function AddTip() {
                     </div>
                     <div className="input-container">
                         <label htmlFor="pick">Pick</label>
-                        <input type="text" placeholder='1 / X / 2 / Over 2.5' id='pick' value={pick} onChange={(e) => setPick(e.target.value.trim().toUpperCase())} required />
+                        <input type="text" placeholder='1 / X / 2 / Over 2.5' id='pick' value={pick} onChange={(e) => setPick(e.target.value.toUpperCase())} onBlur={() => setPick((prev) => prev.trim())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="status">Status</label>
-                        <input type="text" placeholder='finished / pending / live' id='status' value={status} onChange={(e) => setStatus(e.target.value.trim().toLowerCase())} required />
+                        <input type="text" placeholder='finished / pending / live' id='status' value={status} onChange={(e) => setStatus(e.target.value.toLowerCase())} onBlur={() => setStatus((prev) => prev.trim())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="time">Date & Time</label>
@@ -87,11 +87,16 @@ export default function AddTip() {
                     </div>
                     <div className="input-container">
                         <label htmlFor="results">Results</label>
-                        <input type="text" placeholder='2-1' id='results' value={results} onChange={(e) => setResults(e.target.value.trim())} />
+                        <input type="text" placeholder='2-1' id='results' value={results} onChange={(e) => setResults(e.target.value)} onBlur={() => setResults((prev) => prev.trim())} />
                     </div>
                     <div className="input-container">
                         <label htmlFor="won">Is Won</label>
-                        <input type="text" placeholder='won / pending / lost' id='won' value={won} onChange={(e) => setWon(e.target.value.trim().toLowerCase())} required />
+                        <input type="text" placeholder='won / pending / lost' id='won' value={won}
+                            onChange={(e) => setWon(e.target.value.toLowerCase())}
+                            onBlur={() => setWon((prev) => prev.trim())}
+                            //onChange={(e) => setPick(e.target.value.replace(/\s+/g, '').toLowerCase())} (even pasted spaces in the middle) using .replace(/\s+/g, '')
+                            required
+                        />
                     </div>
                     <div className="input-container">
                         <label className="checkbox-label">
