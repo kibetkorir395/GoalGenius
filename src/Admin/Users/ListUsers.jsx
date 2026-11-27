@@ -77,6 +77,7 @@ export default function ListUsers({ currentUser }) {
             total: users.length,
             premium: users.filter(u => u.isPremium).length,
             free: users.filter(u => !u.isPremium).length,
+            withLocality: users.filter(u => !!u.locality).length
         };
     }, [users]);
 
@@ -101,6 +102,10 @@ export default function ListUsers({ currentUser }) {
                 <div className="stat-item">
                     <span className="stat-value">{stats.free}</span>
                     <span className="stat-label">Free</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-value">{stats.withLocality}</span>
+                    <span className="stat-label">With Locality</span>
                 </div>
             </div>
 
