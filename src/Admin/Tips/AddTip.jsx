@@ -1,4 +1,4 @@
-import {useState } from 'react'
+import { useState } from 'react'
 import AppHelmet from '../../pages/AppHelmet';
 import Loader from '../../components/Loader/Loader';
 import '../AdminAdd.scss';
@@ -17,7 +17,7 @@ export default function AddTip() {
     const [status, setStatus] = useState('');
     const [time, setTime] = useState('');
     const [won, setWon] = useState('');
-    const [premium, setPremium] = useState(false);
+    const [premium, setPremium] = useState(true);
     const [results, setResults] = useState('');
     const [loading, setLoading] = useState(false);
     const setNotification = useSetRecoilState(notificationState);
@@ -56,46 +56,46 @@ export default function AddTip() {
 
     return (
         <div className='admin-tips'>
-            <AppHelmet title={"Add Tip"}/>
+            <AppHelmet title={"Add Tip"} />
             <ScrollToTop />
             <h1>Add Tip</h1>
             {!loading && (
                 <form onSubmit={handleSubmit}>
                     <div className="input-container vertical">
                         <label htmlFor="home">Home Team</label>
-                        <input type="text" placeholder='e.g. Manchester United' id='home' value={home} onChange={(e) => setHome(e.target.value)} required/>
+                        <input type="text" placeholder='e.g. Manchester United' id='home' value={home} onChange={(e) => setHome(e.target.value.trim())} required />
                     </div>
                     <div className="input-container vertical">
                         <label htmlFor="away">Away Team</label>
-                        <input type="text" placeholder='e.g. Liverpool' id='away' value={away} onChange={(e) => setAway(e.target.value)} required/>
+                        <input type="text" placeholder='e.g. Liverpool' id='away' value={away} onChange={(e) => setAway(e.target.value.trim())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="odds">Odds</label>
-                        <input type="text" placeholder='1.85' id='odds' value={odd} onChange={(e) => setOdd(e.target.value)} required/>
+                        <input type="text" placeholder='1.85' id='odds' value={odd} onChange={(e) => setOdd(e.target.value)} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="pick">Pick</label>
-                        <input type="text" placeholder='1 / X / 2 / Over 2.5' id='pick' value={pick} onChange={(e) => setPick(e.target.value)} required/>
+                        <input type="text" placeholder='1 / X / 2 / Over 2.5' id='pick' value={pick} onChange={(e) => setPick(e.target.value.trim().toUpperCase())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="status">Status</label>
-                        <input type="text" placeholder='Finish / Pending / Live' id='status' value={status} onChange={(e) => setStatus(e.target.value)} required/>
+                        <input type="text" placeholder='finished / pending / live' id='status' value={status} onChange={(e) => setStatus(e.target.value.trim().toLowerCase())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="time">Date & Time</label>
-                        <input type="datetime-local" id='time' value={time} onChange={(e) => setTime(e.target.value)} required/>
+                        <input type="datetime-local" id='time' value={time} onChange={(e) => setTime(e.target.value)} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="results">Results</label>
-                        <input type="text" placeholder='2-1' id='results' value={results} onChange={(e) => setResults(e.target.value)}/>
+                        <input type="text" placeholder='2-1' id='results' value={results} onChange={(e) => setResults(e.target.value.trim())} />
                     </div>
                     <div className="input-container">
                         <label htmlFor="won">Is Won</label>
-                        <input type="text" placeholder='won / pending / lost' id='won' value={won} onChange={(e) => setWon(e.target.value)} required/>
+                        <input type="text" placeholder='won / pending / lost' id='won' value={won} onChange={(e) => setWon(e.target.value.trim().toLowerCase())} required />
                     </div>
                     <div className="input-container">
                         <label className="checkbox-label">
-                            <input type="checkbox" id='premium' onChange={(e) => setPremium(e.target.checked)} checked={premium}/>
+                            <input type="checkbox" id='premium' onChange={(e) => setPremium(e.target.checked)} checked={premium} />
                             Premium Tip
                         </label>
                     </div>
@@ -103,23 +103,23 @@ export default function AddTip() {
                         <label>Select Type</label>
                         <div className="radio-group">
                             <label className="radio-label">
-                                <input type="radio" name="games-type" value="1X2" checked={gamesType === "1X2"} onChange={handleChange}/>
+                                <input type="radio" name="games-type" value="1X2" checked={gamesType === "1X2"} onChange={handleChange} />
                                 WDW (1X2)
                             </label>
                             <label className="radio-label">
-                                <input type="radio" name="games-type" value="CS" checked={gamesType === "CS"} onChange={handleChange}/>
+                                <input type="radio" name="games-type" value="CS" checked={gamesType === "CS"} onChange={handleChange} />
                                 Goals (CS)
                             </label>
                             <label className="radio-label">
-                                <input type="radio" name="games-type" value="GG" checked={gamesType === "GG"} onChange={handleChange}/>
+                                <input type="radio" name="games-type" value="GG" checked={gamesType === "GG"} onChange={handleChange} />
                                 BTTS (GG/NG)
                             </label>
                             <label className="radio-label">
-                                <input type="radio" name="games-type" value="OV_UN" checked={gamesType === "OV_UN"} onChange={handleChange}/>
+                                <input type="radio" name="games-type" value="OV_UN" checked={gamesType === "OV_UN"} onChange={handleChange} />
                                 Total (OV/UN)
                             </label>
                             <label className="radio-label">
-                                <input type="radio" name="games-type" value="DC" checked={gamesType === "DC"} onChange={handleChange}/>
+                                <input type="radio" name="games-type" value="DC" checked={gamesType === "DC"} onChange={handleChange} />
                                 DC 1X2
                             </label>
                         </div>

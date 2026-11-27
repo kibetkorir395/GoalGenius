@@ -83,11 +83,11 @@ export default function EditTip() {
                 <form onSubmit={handleSubmit}>
                     <div className="input-container vertical">
                         <label htmlFor="home">Home Team</label>
-                        <input type="text" placeholder='home' id='home' value={home} onChange={(e) => setHome(e.target.value)} required />
+                        <input type="text" placeholder='home' id='home' value={home} onChange={(e) => setHome(e.target.value.trim())} required />
                     </div>
                     <div className="input-container vertical">
                         <label htmlFor="away">Away Team</label>
-                        <input type="text" placeholder='away' id='away' value={away} onChange={(e) => setAway(e.target.value)} required />
+                        <input type="text" placeholder='away' id='away' value={away} onChange={(e) => setAway(e.target.value.trim())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="odds">Odds</label>
@@ -95,11 +95,11 @@ export default function EditTip() {
                     </div>
                     <div className="input-container">
                         <label htmlFor="pick">Pick</label>
-                        <input type="text" placeholder='pick' id='pick' value={pick} onChange={(e) => setPick(e.target.value)} required />
+                        <input type="text" placeholder='pick' id='pick' value={pick} onChange={(e) => setPick(e.target.value.trim().toUpperCase())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="status">Status</label>
-                        <input type="text" placeholder='Finish / Pending / Live' id='status' value={status} onChange={(e) => setStatus(e.target.value)} required />
+                        <input type="text" placeholder='finished / pending / live' id='status' value={status} onChange={(e) => setStatus(e.target.value.trim().toLowerCase())} required />
                     </div>
                     <div className="input-container">
                         <label htmlFor="time">Date & Time</label>
@@ -107,11 +107,11 @@ export default function EditTip() {
                     </div>
                     <div className="input-container">
                         <label htmlFor="results">Results</label>
-                        <input type="text" placeholder='results' id='results' value={results} onChange={(e) => setResults(e.target.value)} />
+                        <input type="text" placeholder='results' id='results' value={results} onChange={(e) => setResults(e.target.value.trim())} />
                     </div>
                     <div className="input-container">
                         <label htmlFor="won">Is Won</label>
-                        <input type="text" placeholder='won / pending / lost' id='won' value={won} onChange={(e) => setWon(e.target.value)} required />
+                        <input type="text" placeholder='won / pending / lost' id='won' value={won} onChange={(e) => setWon(e.target.value.trim().toLowerCase())} required />
                     </div>
                     <div className="input-container">
                         <label className="checkbox-label">
