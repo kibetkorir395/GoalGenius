@@ -27,7 +27,7 @@ export const Login = () => {
       const refreshUser = async (email) => {
         await getUser(email, setUser);
       };
-      signInUser(email, password, setNotification, navigate, from, refreshUser, state = location.state); // Pass navigate
+      signInUser(email, password, setNotification, navigate, from, refreshUser, location.state); // Pass navigate
     } else {
       setNotification({
         isVisible: true,
