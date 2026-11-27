@@ -33,33 +33,34 @@ export default function Pricing() {
         {plans.map((plan, idx) => {
           const converted = convertPrice(plan.price);
           return (
-          <div key={plan.id} className={`pricing-card ${idx === 1 ? 'popular' : ''}`} style={{ animationDelay: `${idx * 0.1}s` }}>
-            {idx === 1 && <span className='popular-badge'>Best Value</span>}
-            <div className='card-header'>
-              <h3 className='plan-name'>{plan.plan}</h3>
-              <p className='plan-title'>{plan.title}</p>
+            <div key={plan.id} className={`pricing-card ${idx === 1 ? 'popular' : ''}`} style={{ animationDelay: `${idx * 0.1}s` }}>
+              {idx === 1 && <span className='popular-badge'>Best Value</span>}
+              <div className='card-header'>
+                <h3 className='plan-name'>{plan.plan}</h3>
+                <p className='plan-title'>{plan.title}</p>
+              </div>
+              <div className='card-price'>
+                <span className='price'>{symbol} {converted.toLocaleString()}</span>
+                <span className='period'>/{plan.billing}</span>
+              </div>
+              <ul className='card-features'>
+                {plan.features.map((feature, i) => (
+                  <li key={i}>
+                    <FiCheck className='feature-icon' />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <NavLink
+                className='btn subscribe-btn'
+                state={{ from: location, subscription: plan }}
+                to="/subscribe"
+              >
+                Subscribe Now <FiChevronRight />
+              </NavLink>
             </div>
-            <div className='card-price'>
-              <span className='price'>{symbol} {converted.toLocaleString()}</span>
-              <span className='period'>/{plan.billing}</span>
-            </div>
-            <ul className='card-features'>
-              {plan.features.map((feature, i) => (
-                <li key={i}>
-                  <FiCheck className='feature-icon' />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <NavLink
-              className='btn subscribe-btn'
-              state={{ from: location, subscription: plan }}
-              to='/subscribe'
-            >
-              Subscribe Now <FiChevronRight />
-            </NavLink>
-          </div>
-        )})}
+          )
+        })}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import './About.scss';
 import Faq from '../../components/Faq/Faq';
 import Newsletter from '../../components/Newsletter/Newsletter';
@@ -6,8 +6,10 @@ import Testimonials from '../../components/Testimonials/Testimonials';
 import ScrollToTop from '../ScrollToTop';
 import AppHelmet from '../AppHelmet';
 import { FiArrowRight } from 'react-icons/fi';
+import { pricings } from '../../data';
 
 const About = () => {
+    const location = useLocation();
     return (
         <div className="about-page">
             <ScrollToTop />
@@ -31,7 +33,7 @@ const About = () => {
                 </div>
             </div>
             <div className="about-cta">
-                <NavLink to="/subscribe" className="btn">
+                <NavLink to="/subscribe" state={{ from: location, subscription: pricings[1] }} className="btn">
                     Get Started <FiArrowRight />
                 </NavLink>
             </div>

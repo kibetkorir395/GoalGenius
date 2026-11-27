@@ -4,6 +4,7 @@ import './Navbar.scss';
 import { IoClose, IoMenu } from "react-icons/io5";
 import { IoSunnyOutline, IoMoonOutline } from "react-icons/io5";
 import { NavLink, useLocation } from "react-router-dom";
+import { pricings } from '../../data';
 import { useRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms';
 import { signOut } from 'firebase/auth';
@@ -53,7 +54,7 @@ const Navbar = () => {
         setTheme(e.matches ? 'dark' : 'light');
       }
     };
-    
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
@@ -84,7 +85,7 @@ const Navbar = () => {
           <div className="nav-links">
             <NavLink to="/" className="nav-link">Home</NavLink>
             <NavLink to="/about" className="nav-link">About</NavLink>
-            <NavLink to="/subscribe" className="nav-link">Subscribe</NavLink>
+            <NavLink to="/subscribe" className="nav-link" state={{ from: location, subscription: pricings[1] }}>Subscribe</NavLink>
             {isAdmin && (
               <>
                 <NavLink to="/add-tip" className="nav-link">Add Tip</NavLink>
@@ -114,14 +115,14 @@ const Navbar = () => {
         </nav>
 
         <div className="navbar-actions">
-          <button 
-            className="theme-toggle" 
-            onClick={handleThemeToggle} 
+          <button
+            className="theme-toggle"
+            onClick={handleThemeToggle}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
           >
             {theme === 'dark' ? <IoSunnyOutline /> : <IoMoonOutline />}
           </button>
-          
+
           <button className="menu-toggle" onClick={handleToggle} aria-label="Toggle menu">
             {opened ? <IoClose /> : <IoMenu />}
           </button>

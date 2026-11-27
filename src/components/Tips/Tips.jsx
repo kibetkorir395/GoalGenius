@@ -240,7 +240,7 @@ export default function Tips() {
 
       <div className='tips-cta'>
         <NavLink
-          to='/subscribe'
+          to="/subscribe"
           className='btn'
           state={{ from: location, subscription: pricings[1] }}>
           <span className='diamond'>💎</span>

@@ -55,8 +55,8 @@ export default function Pay() {
 
     switch (currency) {
       case 'KES':
-        setPaymentMethod('mpesa')
-        //setPaymentMethod('kora')
+        //setPaymentMethod('mpesa')
+        setPaymentMethod('kora')
         break;
       case 'NGN':
         setPaymentMethod('kora')

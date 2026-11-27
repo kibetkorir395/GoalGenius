@@ -33,7 +33,7 @@ const PaymentMethodSelector = ({ selected, onChange, currency }) => {
       //methods = methods.filter(m => m.id !== 'flutterwave');
 
       // Hide Kora and flutterwave
-      methods = methods.filter(m => m.id !== 'kora' && m.id !== 'flutterwave');
+      methods = methods.filter(m => m.id !== 'mpesa' && m.id !== 'flutterwave');
     }
     // If currency is NGN (Nigeria)
     else if (currency === 'NGN') {

@@ -1,6 +1,7 @@
 import './Footer.scss';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { socialUrls } from '../../data';
+import { pricings } from '../../data';
 import { userState } from '../../recoil/atoms';
 import { useRecoilValue } from 'recoil';
 import { useEffect, useState } from 'react';
@@ -9,6 +10,7 @@ import Logo from '../../assets/logo.png';
 const Footer = () => {
   const user = useRecoilValue(userState);
   const [isAdmin, setIsAdmin] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const admins = ['kkibetkkoir@gmail.com', 'charleykibet254@gmail.com', 'coongames8@gmail.com'];
@@ -38,7 +40,7 @@ const Footer = () => {
             <h4>Navigation</h4>
             <NavLink to='/'>Home</NavLink>
             <NavLink to='/about'>About</NavLink>
-            <NavLink to='/subscribe'>Subscribe</NavLink>
+            <NavLink to="/subscribe" state={{ from: location, subscription: pricings[1] }}>Subscribe</NavLink>
             {!user && <NavLink to='/login'>Sign In</NavLink>}
             {!user && <NavLink to='/register'>Get Started</NavLink>}
           </div>
