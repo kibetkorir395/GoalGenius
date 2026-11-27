@@ -10,6 +10,7 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Swal from 'sweetalert2';
 import { FiCheck } from 'react-icons/fi';
 import { useCurrency } from '../../context/CurrencyContext';
+import { pricings } from '../../data';
 
 // Import payment components
 import PaymentMethodSelector from './PaymentMethodSelector';
